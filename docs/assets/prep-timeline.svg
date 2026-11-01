@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 270" role="img" aria-label="Prep runs two weeks before the 14 November hackathon" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">
+  <title>Prep runs two weeks before the 14 November hackathon</title>
+  <rect width="760" height="270" fill="#ffffff"/>
+  <text x="24" y="28" font-size="15" font-weight="600" fill="#1f2328">Prep runs two weeks before the 14 November hackathon</text>
+  <text x="24" y="48" font-size="11.5" fill="#57606a">Proposed milestones, November 2026</text>
+
+  <!-- Axis: Nov 1 = x 230, Nov 15 = x 610 (27.14 per day) -->
+  <g stroke="#e5e7eb">
+    <line x1="230" x2="230" y1="80" y2="252"/>
+    <line x1="284.3" x2="284.3" y1="80" y2="252"/>
+    <line x1="338.6" x2="338.6" y1="80" y2="252"/>
+    <line x1="392.9" x2="392.9" y1="80" y2="252"/>
+    <line x1="447.1" x2="447.1" y1="80" y2="252"/>
+    <line x1="501.4" x2="501.4" y1="80" y2="252"/>
+    <line x1="555.7" x2="555.7" y1="80" y2="252"/>
+    <line x1="610" x2="610" y1="80" y2="252"/>
+  </g>
+  <g font-size="11.5" fill="#57606a" text-anchor="middle">
+    <text x="230" y="72">Nov 1</text>
+    <text x="284.3" y="72">Nov 3</text>
+    <text x="338.6" y="72">Nov 5</text>
+    <text x="392.9" y="72">Nov 7</text>
+    <text x="447.1" y="72">Nov 9</text>
+    <text x="501.4" y="72">Nov 11</text>
+    <text x="555.7" y="72">Nov 13</text>
+    <text x="610" y="72">Nov 15</text>
+  </g>
+  <line x1="230" x2="610" y1="80" y2="80" stroke="#8c959f" stroke-width="1.25"/>
+
+  <!-- Rows -->
+  <text x="24" y="108" fill="#1f2328">BPv7 test passed</text>
+  <path d="M230 96l8 8l-8 8l-8 -8z" fill="#8c959f"/>
+  <text x="244" y="108" font-size="11.5" fill="#57606a">Nov 1</text>
+
+  <text x="24" y="140" fill="#1f2328">Team kickoff call</text>
+  <line x1="230" x2="311.4" y1="136" y2="136" stroke="#e5e7eb"/>
+  <path d="M311.4 128l8 8l-8 8l-8 -8z" fill="#8c959f"/>
+  <text x="325.4" y="140" font-size="11.5" fill="#57606a">Nov 4</text>
+
+  <text x="24" y="172" fill="#1f2328">Contracts and datasets</text>
+  <line x1="230" x2="311.4" y1="168" y2="168" stroke="#e5e7eb"/>
+  <rect x="311.4" y="161" width="108.6" height="14" rx="7" fill="#8c959f" fill-opacity="0.18" stroke="#8c959f" stroke-width="1.25"/>
+  <text x="434" y="172" font-size="11.5" fill="#57606a">Nov 4 to Nov 8</text>
+
+  <text x="24" y="204" fill="#1f2328">Repo, CI and tools ready</text>
+  <line x1="230" x2="420" y1="200" y2="200" stroke="#e5e7eb"/>
+  <rect x="420" y="193" width="81.4" height="14" rx="7" fill="#8c959f" fill-opacity="0.18" stroke="#8c959f" stroke-width="1.25"/>
+  <text x="515.4" y="204" font-size="11.5" fill="#57606a">Nov 8 to Nov 11</text>
+
+  <text x="24" y="236" font-weight="600" fill="#1f2328">Hackathon, build and demo</text>
+  <line x1="230" x2="582.9" y1="232" y2="232" stroke="#e5e7eb"/>
+  <rect x="582.9" y="225" width="27.1" height="14" rx="7" fill="#2f6fd6" fill-opacity="0.18" stroke="#2f6fd6" stroke-width="2"/>
+  <text x="624" y="236" font-size="11.5" font-weight="600" fill="#1f2328">Nov 14 to Nov 15</text>
+</svg>

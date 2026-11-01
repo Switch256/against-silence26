@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 500" role="img" aria-label="No medical event is lost when the link to Earth drops" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">
+  <title>No medical event is lost when the link to Earth drops</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8c959f"/></marker>
+  </defs>
+  <rect width="760" height="500" fill="#ffffff"/>
+  <text x="24" y="32" font-size="15" font-weight="600" fill="#1f2328">No medical event is lost when the link to Earth drops</text>
+
+  <!-- Spacecraft -->
+  <rect x="24" y="52" width="712" height="216" rx="8" fill="none" stroke="#8c959f" stroke-dasharray="4 4"/>
+  <text x="40" y="76" font-weight="600" fill="#57606a">Spacecraft, works fully offline</text>
+
+  <rect x="40" y="92" width="200" height="72" rx="8" fill="none" stroke="#8c959f" stroke-width="1.25"/>
+  <text x="56" y="116" font-weight="600" fill="#1f2328">Health input</text>
+  <text x="56" y="136" font-size="11.5" fill="#57606a">BLE heart-rate sensor</text>
+  <text x="56" y="152" font-size="11.5" fill="#57606a">simulated vitals, datasets</text>
+
+  <rect x="280" y="92" width="200" height="72" rx="8" fill="none" stroke="#8c959f" stroke-width="1.25"/>
+  <text x="296" y="116" font-weight="600" fill="#1f2328">AEGIS onboard AI</text>
+  <text x="296" y="136" font-size="11.5" fill="#57606a">personal baselines</text>
+  <text x="296" y="152" font-size="11.5" fill="#57606a">anomaly flags with reasons</text>
+
+  <rect x="520" y="92" width="200" height="72" rx="8" fill="#2f6fd6" fill-opacity="0.12" stroke="#2f6fd6" stroke-width="2"/>
+  <text x="536" y="116" font-weight="600" fill="#1f2328">MEDLINK node</text>
+  <text x="536" y="136" font-size="11.5" fill="#1f2328">signed, prioritised events</text>
+  <text x="536" y="152" font-size="11.5" fill="#1f2328">stored until link is up</text>
+
+  <rect x="280" y="196" width="200" height="56" rx="8" fill="none" stroke="#8c959f" stroke-width="1.25"/>
+  <text x="296" y="220" font-weight="600" fill="#1f2328">Crew console</text>
+  <text x="296" y="240" font-size="11.5" fill="#57606a">alerts and Earth replies</text>
+
+  <!-- Link -->
+  <rect x="24" y="288" width="712" height="40" rx="8" fill="#eef1f4"/>
+  <text x="40" y="312" fill="#1f2328">Space link: BPv7 bundles, simulated blackouts and delay</text>
+  <text x="632" y="312" text-anchor="end" font-size="11.5" fill="#57606a">event</text>
+  <text x="698" y="312" font-size="11.5" fill="#57606a">reply</text>
+
+  <!-- Earth -->
+  <rect x="24" y="348" width="712" height="128" rx="8" fill="none" stroke="#8c959f" stroke-dasharray="4 4"/>
+  <text x="40" y="372" font-weight="600" fill="#57606a">Earth medical operations</text>
+
+  <rect x="280" y="388" width="200" height="72" rx="8" fill="none" stroke="#8c959f" stroke-width="1.25"/>
+  <text x="296" y="412" font-weight="600" fill="#1f2328">Earth medical console</text>
+  <text x="296" y="432" font-size="11.5" fill="#57606a">review flagged events</text>
+  <text x="296" y="448" font-size="11.5" fill="#57606a">write signed guidance</text>
+
+  <rect x="520" y="388" width="200" height="72" rx="8" fill="none" stroke="#8c959f" stroke-width="1.25"/>
+  <text x="536" y="412" font-weight="600" fill="#1f2328">MEDLINK Earth node</text>
+  <text x="536" y="432" font-size="11.5" fill="#57606a">de-duplicates by event_id</text>
+  <text x="536" y="448" font-size="11.5" fill="#57606a">sends acknowledgements</text>
+
+  <!-- Connectors -->
+  <g fill="none" stroke="#8c959f" stroke-width="1.25">
+    <path d="M240 128H278" marker-end="url(#arrow)"/>
+    <path d="M480 128H518" marker-end="url(#arrow)"/>
+    <path d="M380 164V194" marker-end="url(#arrow)"/>
+    <path d="M560 164V224H482" marker-end="url(#arrow)"/>
+    <path d="M640 164V386" marker-end="url(#arrow)"/>
+    <path d="M690 388V166" marker-end="url(#arrow)"/>
+    <path d="M520 412H482" marker-end="url(#arrow)"/>
+    <path d="M480 436H518" marker-end="url(#arrow)"/>
+  </g>
+  <text x="490" y="216" font-size="11.5" fill="#57606a">Earth reply</text>
+</svg>
