@@ -1,12 +1,28 @@
 ---
+layout: default
 title: AEGIS-MEDLINK — Background & Technical Plan
+description: Offline astronaut health monitoring with delay-tolerant medical communication over BPv7. Team Against the Silence, NASA Space Apps 2026.
+image: /assets/preview.png
 ---
 
 # AEGIS-MEDLINK — Background & Technical Plan
 
 Team Against the Silence · NASA Space Apps 2026 · Nov 1, 2026 · Asasira Martin
 
-> ✏️ This page is the team's living plan. To change it, open [`docs/index.md`](https://github.com/OWNER/aegis-medlink/edit/main/docs/index.md) on GitHub, edit, and commit.
+> ✏️ This page is the team's living plan. To change it, [edit `docs/index.md` on GitHub](https://github.com/Switch256/against-silence26/edit/main/docs/index.md) and commit. Questions, ideas or problems: [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
+
+## How it works
+
+A watch reads the astronaut's health. The spacecraft checks it on board. If something is wrong, a message goes to doctors on Earth, and if the link is down, the message waits and is never lost.
+
+{% include intro.html %}
+
+| | Part | In one line |
+| --- | --- | --- |
+| ⌚ | Watch | Reads heart rate (and more, in the simulator) and sends it over Bluetooth |
+| 🧠 | AEGIS | On the spacecraft: learns each astronaut's normal and flags what isn't |
+| 📨 | MEDLINK | Packs alerts into PulseBriefs, keeps them safe, sends the most urgent first when Earth can hear |
+| 🌍 | Earth console | Doctors see the alert, reply, and the answer travels back |
 
 ## Background
 
@@ -27,6 +43,53 @@ AEGIS-MEDLINK is two parts that share one message format: AEGIS thinks onboard, 
 - **Two consoles:** a spacecraft console for the crew and an Earth medical console for the simulated flight-surgeon team.
 
 **What we will not claim:** that the prototype diagnoses anything, that it is flight-ready, or that we solved spacecraft connectivity. We build on NASA's existing delay-tolerant networking (DTN) work, use public or clearly labelled synthetic data, and keep humans in charge of medical decisions.
+
+## Our special touch: PulseBrief
+
+**A health message built for a broken, slow link.** Most health apps send raw numbers: `heart_rate: 110` tells Earth what happened, but not whether it matters. AEGIS sends a **PulseBrief** instead: one small message that explains the event, split so the most important part always gets through first.
+
+> *During the silence, the astronaut is never alone: AEGIS says what to do now, MEDLINK guarantees the message, and PulseBrief makes the first 200 bytes count.*
+
+### 1. Three layers, headline first
+
+Each PulseBrief travels as three BPv7 bundles. If the link opens for only a few seconds, Earth still gets the headline; the rest follows in the next window.
+
+| Layer | What it holds | Size (estimate) | Sent |
+| --- | --- | --- | --- |
+| 🔴 Headline | Who, what changed, how urgent, signal quality | ~200 bytes | First, always |
+| 🟠 Context | Sleep, exercise, oxygen, the astronaut's check-in | ~1 KB | Next |
+| 🔵 Evidence | Readings before and after the event | a few KB | When there is room |
+
+For comparison, 10 minutes of raw readings at one per second is roughly 15–20 KB of JSON. These are estimates; we measure the real numbers at the hackathon.
+
+### 2. The astronaut is never left waiting in silence
+
+- **What to do now:** AEGIS shows a short checklist written in advance by doctors (sit down, re-measure in 5 minutes, drink water). Not AI-invented advice.
+- **3-tap check-in:** "How do you feel?" fine / a bit off / unwell, plus one symptom. It becomes the "astronaut says" line in the brief.
+- **Reply countdown:** from the signal delay and the next link window, the crew screen shows when Earth will see the brief and when a reply can arrive.
+
+### 3. Fewer false alarms
+
+- **Signal quality first:** a loose watch or movement makes readings jump. AEGIS checks this before alerting and marks each brief "signal: good / poor".
+- **Activity-aware:** a fast heart rate during exercise is normal; at rest it is not.
+
+### What it looks like
+
+{% include pulsebrief.html %}
+
+### What we build first
+
+| Priority | Feature | Who |
+| --- | --- | --- |
+| Must | Layered PulseBrief: headline, context, evidence | Martin |
+| Must | 3-tap check-in and "what to do now" screen | Mariam (UI), Martin (logic) |
+| Must | "Reply expected in" countdown | Mariam |
+| Nice | Signal-quality check and activity-aware alerts | Martin |
+| Nice | Short-window demo: only the headline gets through | Martin, David runs it |
+
+**What we will prove on stage:** the headline reaches Earth even in a very short link window, nothing is lost across a blackout, and how many bytes a PulseBrief sends compared with raw readings.
+
+**About the data:** NASA does not publish live astronaut vitals; medical records are private. We use NASA research ([Open Science Data Repository](https://osdr.nasa.gov/), [Human Research Program](https://www.nasa.gov/hrp/), [NASA Life Sciences Portal](https://www.nasa.gov/hrp/nlsp/)) for realistic ranges and context, plus simulated readings that are clearly labelled as simulated.
 
 ## System flow
 
@@ -77,12 +140,12 @@ Setup: two [dtn7-rs](https://github.com/dtn7/dtn7-rs) 0.21.0 daemons in Docker, 
 
 ## Repository and collaboration
 
-One GitHub organisation with one main repository (a monorepo): each part gets its own folder and owner, not its own repo.
+One repository, [Switch256/against-silence26](https://github.com/Switch256/against-silence26) (a monorepo): each part gets its own folder and owner, not its own repo.
 
 Why one repo: with three people and 48 hours, separate backend and frontend repos mean extra setup, version drift and harder integration. One repo gives one CI pipeline, one `docker compose up`, and contract changes that land in the same pull request as the code that uses them.
 
 ```text
-aegis-medlink/
+against-silence26/
 ├── contracts/          # JSON Schemas + OpenAPI (shared, reviewed by all)
 ├── services/
 │   ├── aegis/          # onboard AI (Python)
@@ -107,15 +170,19 @@ aegis-medlink/
 
 ## Team roles and timeline
 
-Each person owns one part end to end and builds against the shared contracts, so all three work in parallel from hour one.
+Asasira Martin leads and builds the core end to end; teammates take focused pieces that plug in through the shared contracts. Every member owns a deliverable. Nobody has to be technical, but everybody contributes. If a piece has no confirmed owner, Martin covers it, so the demo never depends on one person.
 
-| Person | Owns | Folders | Before 14 Nov |
+| Person | Status | Owns | Before 14 Nov |
 | --- | --- | --- | --- |
-| Asasira Martin | Architecture, MEDLINK, integration, CI | `contracts/`, `services/medlink/`, `.github/` | Contracts draft, BPv7 notes, repo setup |
-| Nur Sima Akgül | AEGIS onboard AI | `services/aegis/` | Pick datasets, compare baseline and anomaly methods |
-| Mariam Saied (to confirm) | Consoles and/or simulator | `apps/`, `services/simulator/` | Sketch both screens, learn Next.js basics if needed |
+| Asasira Martin (lead) | Active | Architecture, contracts, MEDLINK, AEGIS (kept simple: baselines, statistical anomaly flags, clear alerts), integration, CI, demo | Contracts draft, BPv7 notes, repo setup, AEGIS method choice |
+| Mariam Saied | Active | UI/UX design and frontend: the spacecraft crew console and the Earth medical console (`apps/`) | Sketch both screens, pick colours and layout, learn Next.js basics if needed |
+| David Kitasho | Joined | Testing, documentation, demo support: runs the demo like an astronaut would and reports anything confusing or broken | Draft the test checklist and demo script |
+| Zekeriyamrcn | Not accepted | — | — |
+| Nur Sima Akgül | No contact yet | — | — |
 
-Open roles we would welcome: a biomedical or medicine student to check our health assumptions, and a designer for the consoles.
+Open roles we would welcome: a biomedical or medicine student to check our health assumptions.
+
+**Want a role, or want to change yours?** [Request a role](https://github.com/Switch256/against-silence26/issues/new?template=role.yml). Anything else (a question, a blocker, an idea): [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
 
 ![Prep runs two weeks before the 14 November hackathon](assets/prep-timeline.svg)
 
@@ -125,3 +192,6 @@ Dates after 1 November are proposals; we fix them at the kickoff call.
 
 - [dtn7-rs (BPv7 daemon)](https://github.com/dtn7/dtn7-rs)
 - [NASA HDTN](https://github.com/nasa/HDTN)
+- [NASA Open Science Data Repository](https://osdr.nasa.gov/)
+- [NASA Human Research Program](https://www.nasa.gov/hrp/)
+- [NASA Life Sciences Portal](https://www.nasa.gov/hrp/nlsp/)

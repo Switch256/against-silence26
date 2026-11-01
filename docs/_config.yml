@@ -1,3 +1,10 @@
 title: AEGIS-MEDLINK
 description: Against the Silence · NASA Space Apps 2026 · Care Beyond Connectivity
-theme: jekyll-theme-cayman
+url: https://switch256.github.io
+baseurl: /against-silence26
+plugins:
+  - jekyll-seo-tag
+
+# Used by the layout for GitHub links
+repo: Switch256/against-silence26
+branch: main

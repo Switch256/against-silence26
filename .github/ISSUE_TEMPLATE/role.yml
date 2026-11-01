@@ -1,0 +1,36 @@
+name: Role request
+description: Ask to join the team or take on / change a role
+title: "[Role] "
+labels: ["role"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Your name
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Which part do you want to own or help with?
+      options:
+        - AEGIS onboard AI
+        - MEDLINK / BPv7 communication
+        - Spacecraft console (frontend)
+        - Earth medical console (frontend)
+        - Simulator (sensors, outages, delays)
+        - Biomedical review
+        - UI/UX design
+        - Testing and integration
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: skills
+    attributes:
+      label: Relevant skills and experience
+      description: Languages, tools, past projects. Links welcome (GitHub, LinkedIn, portfolio).
+  - type: input
+    id: availability
+    attributes:
+      label: Availability before and during 14–15 November
