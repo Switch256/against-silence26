@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% seo %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+</head>
+<body>
+  <header class="topbar">
+    <button class="menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="left">☰</button>
+    <a class="brand" href="{{ '/' | relative_url }}"><span class="logo">◉</span> AEGIS-MEDLINK</a>
+    <span class="tag">Against the Silence · Space Apps 2026</span>
+    <button class="theme-btn" aria-label="Toggle dark mode">◐</button>
+  </header>
+
+  <div class="shell">
+    <!-- Left sidebar: navigation -->
+    <nav id="left" class="sidebar left" aria-label="Site">
+      <input class="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections">
+      <div class="group">
+        <p class="group-title">Plan</p>
+        <ul class="nav-sections"><!-- filled from page headings --></ul>
+      </div>
+      <div class="group">
+        <p class="group-title">Team</p>
+        <ul>
+          <li><a href="https://github.com/{{ site.repo }}/issues/new?template=role.yml">Request a role</a></li>
+          <li><a href="https://github.com/{{ site.repo }}/issues?q=label%3Arole">Role requests</a></li>
+        </ul>
+      </div>
+      <div class="group">
+        <p class="group-title">Repository</p>
+        <ul>
+          <li><a href="https://github.com/{{ site.repo }}">Code</a></li>
+          <li><a href="https://github.com/{{ site.repo }}/issues">Issues</a></li>
+          <li><a href="https://github.com/{{ site.repo }}/pulls">Pull requests</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content" id="content">
+      {{ content }}
+      <footer class="page-foot">
+        <a href="https://github.com/{{ site.repo }}/edit/{{ site.branch }}/docs/{{ page.path }}">✏️ Edit this page on GitHub</a>
+        <span>Care Beyond Connectivity</span>
+      </footer>
+    </main>
+
+    <!-- Right sidebar: on this page + actions -->
+    <aside class="sidebar right" aria-label="On this page">
+      <p class="group-title">On this page</p>
+      <ul class="toc"><!-- filled from page headings --></ul>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/{{ site.repo }}/issues/new?template=role.yml">🙋 Request a role</a>
+        <a class="btn" href="https://github.com/{{ site.repo }}/issues/new/choose">💬 Open an issue</a>
+        <a class="btn" href="https://github.com/{{ site.repo }}/edit/{{ site.branch }}/docs/{{ page.path }}">✏️ Edit this page</a>
+      </div>
+    </aside>
+  </div>
+  <div class="scrim" hidden></div>
+
+  <script src="{{ '/assets/site.js' | relative_url }}"></script>
+</body>
+</html>

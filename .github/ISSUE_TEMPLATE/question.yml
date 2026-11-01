@@ -1,0 +1,15 @@
+name: Question or idea
+description: Ask something about the plan, or suggest a change
+title: "[Question] "
+labels: ["question"]
+body:
+  - type: textarea
+    id: details
+    attributes:
+      label: What would you like to ask or suggest?
+    validations:
+      required: true
+  - type: input
+    id: section
+    attributes:
+      label: Which part of the plan does it relate to? (optional)
