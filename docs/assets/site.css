@@ -214,3 +214,16 @@ a:hover { text-decoration: underline; }
 .layer.l1 { animation-delay: .2s; } .layer.l2 { animation-delay: 1s; } .layer.l3 { animation-delay: 1.8s; border-style: dashed; }
 @keyframes layer-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .layer { animation: none; opacity: 1; } }
+
+/* ---------- Our story ---------- */
+.story { margin: 16px 0 8px; padding: 22px 26px; border-radius: 14px; border: 1px solid var(--line);
+  background: var(--bg-2); font-size: 17px; line-height: 1.7; }
+.story p { margin: 0 0 12px; }
+.story-tag { margin: 16px 0 0 !important; font-size: 19px; font-weight: 700; letter-spacing: .3px; color: var(--accent); }
+
+/* ---------- Language switch ---------- */
+.lang-switch { margin-left: auto; display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; height: 32px; }
+.lang-switch a { display: inline-grid; place-items: center; padding: 0 10px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.lang-switch a:hover { text-decoration: none; color: var(--fg); background: var(--accent-bg); }
+.lang-switch a.on { background: var(--accent); color: #fff; }
+.lang-switch + .theme-btn { margin-left: 8px; }

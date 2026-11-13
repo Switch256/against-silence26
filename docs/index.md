@@ -11,18 +11,32 @@ Team Against the Silence · NASA Space Apps 2026 · Nov 1, 2026 · Asasira Marti
 
 > ✏️ This page is the team's living plan. To change it, [edit `docs/index.md` on GitHub](https://github.com/Switch256/against-silence26/edit/main/docs/index.md) and commit. Questions, ideas or problems: [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
 
+## Our story
+
+<div class="story" markdown="1">
+
+An astronaut is millions of kilometres from Earth. Their health measurements begin showing an unusual pattern. Communication with Earth is interrupted.
+
+**AEGIS** (*Astronaut Emergency Guidance and Intelligence System*) continues monitoring locally, generates a medical context report, and **MEDLINK** preserves the information.
+
+When connectivity returns, the prioritized message reaches Earth. The medical team can review the event and send a response.
+
+<p class="story-tag">Care Beyond Connectivity.</p>
+
+</div>
+
 ## How it works
 
-A watch reads the astronaut's health. The spacecraft checks it on board. If something is wrong, a message goes to doctors on Earth, and if the link is down, the message waits and is never lost.
+Health readings come in from our simulator (or a wearable, if we have time). The spacecraft checks them on board. If something is wrong, a message goes to doctors on Earth, and if the link is down, the message waits and is never lost.
 
 {% include intro.html %}
 
 | | Part | In one line |
 | --- | --- | --- |
-| ⌚ | Watch | Reads heart rate (and more, in the simulator) and sends it over Bluetooth |
+| ⌚ | Health input | Simulator readings shaped by NASA research; a Bluetooth heart-rate sensor is an optional bonus |
 | 🧠 | AEGIS | On the spacecraft: learns each astronaut's normal and flags what isn't |
 | 📨 | MEDLINK | Packs alerts into PulseBriefs, keeps them safe, sends the most urgent first when Earth can hear |
-| 🌍 | Earth console | Doctors see the alert, reply, and the answer travels back |
+| 🌍 | Two dashboards | Web apps (PWA): the astronaut dashboard on board, the Earth console for doctors |
 
 ## Background
 
@@ -38,7 +52,7 @@ Connectivity makes this harder. A one-way signal between Earth and Mars takes ro
 
 AEGIS-MEDLINK is two parts that share one message format: AEGIS thinks onboard, MEDLINK carries messages to and from Earth.
 
-- **AEGIS (onboard health intelligence):** reads vitals, learns each astronaut's personal baseline, flags unusual trends with a plain-language reason, and shows approved guidance. Runs fully offline on a normal CPU.
+- **AEGIS, Astronaut Emergency Guidance and Intelligence System:** the onboard intelligence component, responsible for monitoring physiological data, detecting anomalies and generating medical alerts. It reads vitals, compares them with each astronaut's own normal using simple rules and statistics (no AI model), flags unusual readings with a plain-language reason, and shows approved guidance. Runs fully offline on a normal CPU.
 - **MEDLINK (delay-tolerant medical link):** turns flagged events into prioritised, signed messages, stores them safely, and delivers them over BPv7 (NASA's delay-tolerant Bundle Protocol) whenever a link is available. Earth replies travel back the same way.
 - **Two consoles:** a spacecraft console for the crew and an Earth medical console for the simulated flight-surgeon team.
 
@@ -107,13 +121,12 @@ Everything runs on laptops with Docker; no GPU and no cloud service is needed fo
 
 | Component | Technologies | Why |
 | --- | --- | --- |
-| Health input | BLE heart-rate sensor, Python `bleak`, simulator for other vitals, public datasets | One real sensor proves the path; simulation covers vitals we can't measure |
-| AEGIS (onboard AI) | Python, FastAPI, pandas, scikit-learn (rolling baselines, z-scores, Isolation Forest) | Fast on CPU, explainable, easy to test |
-| Explanations (optional) | Small local LLM via Ollama, limited to approved text | Plain-language summaries without cloud; never prescribes |
+| Health input | Built-in simulator (guaranteed), NASA-derived scenario, optional BLE heart-rate sensor (Python `bleak` or Web Bluetooth) | The demo never depends on hardware; one real sensor is a bonus |
+| AEGIS (health-data processing) | Python, FastAPI, pandas (rolling baselines, simple thresholds, z-scores) | Fast on CPU, easy to explain, no model to train |
 | Local storage | SQLite (events, vitals, audit log) | One file, survives restarts |
 | MEDLINK | Python FastAPI service + dtn7-rs BPv7 daemon (`dtnd`) over its local HTTP API | Real BPv7 bundles, store-and-forward, persistent bundle store |
 | Link simulator | Docker network + Linux `tc netem` (delay, loss), scheduled link windows | Repeatable blackouts and delays on stage |
-| Spacecraft console + Earth console | Next.js (React, TypeScript), Tailwind, Recharts | Two clear screens for the judges |
+| Astronaut dashboard + Earth console | Next.js PWA (React, TypeScript), Tailwind, Recharts | Installable web app, no app store; the astronaut app talks to the onboard backend, the Earth console to the Earth side |
 | Shared contracts | JSON Schema for events, OpenAPI for each service | Lets everyone build in parallel against mocks |
 | Security | Ed25519 message signing, encryption at rest for stored events | Earth can trust who sent what |
 | Delivery | GitHub, GitHub Actions, Docker Compose | One command starts the whole demo |
@@ -148,7 +161,7 @@ Why one repo: with three people and 48 hours, separate backend and frontend repo
 against-silence26/
 ├── contracts/          # JSON Schemas + OpenAPI (shared, reviewed by all)
 ├── services/
-│   ├── aegis/          # onboard AI (Python)
+│   ├── aegis/          # health-data processing (Python)
 │   ├── medlink/        # BPv7 gateway (Python + dtnd)
 │   └── simulator/      # sensors, link outages, delays
 ├── apps/
@@ -168,25 +181,47 @@ against-silence26/
 - Each service ships mock data from day one, so nobody waits on anybody.
 - Before 14 November the repo holds only docs, contract drafts and learning notes; product code starts at the hackathon, in line with Space Apps guidance.
 
-## Team roles and timeline
+## Team roles
 
-Asasira Martin leads and builds the core end to end; teammates take focused pieces that plug in through the shared contracts. Every member owns a deliverable. Nobody has to be technical, but everybody contributes. If a piece has no confirmed owner, Martin covers it, so the demo never depends on one person.
+Three people, three clear lanes. Each lane plugs into the others through the shared contracts, so nobody waits on anybody.
 
-| Person | Status | Owns | Before 14 Nov |
-| --- | --- | --- | --- |
-| Asasira Martin (lead) | Active | Architecture, contracts, MEDLINK, AEGIS (kept simple: baselines, statistical anomaly flags, clear alerts), integration, CI, demo | Contracts draft, BPv7 notes, repo setup, AEGIS method choice |
-| Mariam Saied | Active | UI/UX design and frontend: the spacecraft crew console and the Earth medical console (`apps/`) | Sketch both screens, pick colours and layout, learn Next.js basics if needed |
-| David Kitasho | Joined | Testing, documentation, demo support: runs the demo like an astronaut would and reports anything confusing or broken | Draft the test checklist and demo script |
-| Zekeriyamrcn | Not accepted | — | — |
-| Nur Sima Akgül | No contact yet | — | — |
-
-Open roles we would welcome: a biomedical or medicine student to check our health assumptions.
+| Person | Owns | Delivers by Sunday 15:00 |
+| --- | --- | --- |
+| **Asasira Martin** (lead) | FastAPI backend, health-data processing (AEGIS), BLE integration, MEDLINK | Data in → AEGIS alert → PulseBrief → BPv7 delivery, with the blackout simulator |
+| **Mariam Saied** | Next.js frontend: the astronaut dashboard and the Earth console | Both screens as a PWA, working against mock data first, then the live API |
+| **David Kitasho** | End-to-end testing, demo scenarios, bug reporting | Test checklist, the demo script, bugs filed as issues, screenshots for the slides |
+| Zekeriyamrcn | Not accepted | — |
+| Nur Sima Akgül | No contact yet | — |
 
 **Want a role, or want to change yours?** [Request a role](https://github.com/Switch256/against-silence26/issues/new?template=role.yml). Anything else (a question, a blocker, an idea): [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
 
-![Prep runs two weeks before the 14 November hackathon](assets/prep-timeline.svg)
+## Hackathon weekend
 
-Dates after 1 November are proposals; we fix them at the kickoff call.
+**Build less, demonstrate more, document everything.** NASA Space Apps Sivas runs 14–15 November 2026, in person at Sivas Cumhuriyet University. Every team member must be there both days.
+
+| When | What |
+| --- | --- |
+| Sat 14 Nov, 09:00 | NASA project page opens (My Team → Project). Start filling it in and save often |
+| Sat 14 Nov, 10:00 | Opening at 100. Yıl Kültür Merkezi. Attendance is taken |
+| Sat 14 Nov, ~13:00 | Work starts in the Engineering Faculty, Building B labs, through the night |
+| Sun 15 Nov, 15:00 | Work ends. Local presentations: 5 min + 2 min questions, in Turkish |
+| Sun 15 Nov, 23:59 | **Click "Submit for Judging"** on spaceappschallenge.org. Saving is not enough |
+
+### What we ship (the MVP)
+
+- **Guaranteed:** simulated astronaut readings shaped by NASA research → AEGIS anomaly detection → PulseBrief → BPv7 store-and-forward → the two dashboards.
+- **Also in:** a blackout switch the judges can press, a live count of queued and delivered messages, and real bytes sent per PulseBrief.
+- **Only if time allows:** a live wearable. A standard BLE heart-rate sensor works through the backend or Web Bluetooth in Chrome. An Apple Watch would need a small native iPhone app, because browsers (and Safari PWAs) cannot read HealthKit or use Web Bluetooth on iPhone.
+- **Data source selector** on the dashboard: synthetic readings / NASA-derived scenario / wearable (optional).
+
+### Rules we must not miss
+
+- **NASA data is required** for global awards: at least one NASA resource, used in the build and explained, not just cited. Simulated readings stay labelled as simulated.
+- **Everything uploaded is in English** (project page, slides). The local talk is in Turkish.
+- **Demo:** a video of at most 30 seconds, or at most 7 slides including the title. Slides show the team name, members and challenge.
+- **AI use must be disclosed** on the project page. The idea is ours; we say where AI helped (brainstorming, writing, code). No NASA logo in generated images.
+- **Links must open without a login.** Test them in a private browser window before submitting.
+- **Judged on:** Impact, Creativity, Validity, Relevance (real NASA data use) and Presentation, each 1–5.
 
 ## Sources
 
