@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en">
+{% assign lang = page.lang | default: 'en' %}
+<html lang="{{ lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,30 +14,34 @@
     <button class="menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="left">☰</button>
     <a class="brand" href="{{ '/' | relative_url }}"><span class="logo">◉</span> AEGIS-MEDLINK</a>
     <span class="tag">Against the Silence · Space Apps 2026</span>
+    <nav class="lang-switch" aria-label="Language">
+      <a href="{{ '/' | relative_url }}" hreflang="en" class="{% if lang == 'en' %}on{% endif %}">EN</a>
+      <a href="{{ '/tr/' | relative_url }}" hreflang="tr" class="{% if lang == 'tr' %}on{% endif %}">TR</a>
+    </nav>
     <button class="theme-btn" aria-label="Toggle dark mode">◐</button>
   </header>
 
   <div class="shell">
     <!-- Left sidebar: navigation -->
     <nav id="left" class="sidebar left" aria-label="Site">
-      <input class="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections">
+      <input class="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections" data-i18n-placeholder="filter">
       <div class="group">
-        <p class="group-title">Plan</p>
+        <p class="group-title" data-i18n="plan">Plan</p>
         <ul class="nav-sections"><!-- filled from page headings --></ul>
       </div>
       <div class="group">
-        <p class="group-title">Team</p>
+        <p class="group-title" data-i18n="team">Team</p>
         <ul>
-          <li><a href="https://github.com/{{ site.repo }}/issues/new?template=role.yml">Request a role</a></li>
-          <li><a href="https://github.com/{{ site.repo }}/issues?q=label%3Arole">Role requests</a></li>
+          <li><a href="https://github.com/{{ site.repo }}/issues/new?template=role.yml" data-i18n="requestRole">Request a role</a></li>
+          <li><a href="https://github.com/{{ site.repo }}/issues?q=label%3Arole" data-i18n="roleRequests">Role requests</a></li>
         </ul>
       </div>
       <div class="group">
-        <p class="group-title">Repository</p>
+        <p class="group-title" data-i18n="repository">Repository</p>
         <ul>
-          <li><a href="https://github.com/{{ site.repo }}">Code</a></li>
-          <li><a href="https://github.com/{{ site.repo }}/issues">Issues</a></li>
-          <li><a href="https://github.com/{{ site.repo }}/pulls">Pull requests</a></li>
+          <li><a href="https://github.com/{{ site.repo }}" data-i18n="code">Code</a></li>
+          <li><a href="https://github.com/{{ site.repo }}/issues" data-i18n="issues">Issues</a></li>
+          <li><a href="https://github.com/{{ site.repo }}/pulls" data-i18n="pulls">Pull requests</a></li>
         </ul>
       </div>
     </nav>
@@ -45,19 +50,19 @@
     <main class="content" id="content">
       {{ content }}
       <footer class="page-foot">
-        <a href="https://github.com/{{ site.repo }}/edit/{{ site.branch }}/docs/{{ page.path }}">✏️ Edit this page on GitHub</a>
+        <a href="https://github.com/{{ site.repo }}/edit/{{ site.branch }}/docs/{{ page.path }}" data-i18n="editGithub">✏️ Edit this page on GitHub</a>
         <span>Care Beyond Connectivity</span>
       </footer>
     </main>
 
     <!-- Right sidebar: on this page + actions -->
     <aside class="sidebar right" aria-label="On this page">
-      <p class="group-title">On this page</p>
+      <p class="group-title" data-i18n="onThisPage">On this page</p>
       <ul class="toc"><!-- filled from page headings --></ul>
       <div class="actions">
-        <a class="btn primary" href="https://github.com/{{ site.repo }}/issues/new?template=role.yml">🙋 Request a role</a>
-        <a class="btn" href="https://github.com/{{ site.repo }}/issues/new/choose">💬 Open an issue</a>
-        <a class="btn" href="https://github.com/{{ site.repo }}/edit/{{ site.branch }}/docs/{{ page.path }}">✏️ Edit this page</a>
+        <a class="btn primary" href="https://github.com/{{ site.repo }}/issues/new?template=role.yml" data-i18n="btnRole">🙋 Request a role</a>
+        <a class="btn" href="https://github.com/{{ site.repo }}/issues/new/choose" data-i18n="btnIssue">💬 Open an issue</a>
+        <a class="btn" href="https://github.com/{{ site.repo }}/edit/{{ site.branch }}/docs/{{ page.path }}" data-i18n="btnEdit">✏️ Edit this page</a>
       </div>
     </aside>
   </div>

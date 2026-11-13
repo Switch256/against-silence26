@@ -12,7 +12,7 @@
 <rect x="118" y="132" width="44" height="16" rx="8" class="suit"/>
 <rect x="150" y="128" width="20" height="24" rx="5" class="watch"/>
 <path d="M155 141l3 0 2-4 3 8 2-4 3 0" class="watch-line"/>
-<text x="92" y="236" text-anchor="middle" class="label">Astronaut + watch</text>
+<text x="92" y="236" text-anchor="middle" data-i18n="astronaut" class="label">Astronaut</text>
 <text x="160" y="118" text-anchor="middle" class="bpm bpm-ok">72 bpm</text>
 <text x="160" y="118" text-anchor="middle" class="bpm bpm-high">118 bpm</text>
 </g>
@@ -26,15 +26,15 @@
 <!-- Spacecraft -->
 <g class="ship">
 <rect x="250" y="40" width="230" height="190" rx="14" class="ship-body"/>
-<text x="266" y="62" class="label strong">Spacecraft</text>
+<text x="266" y="62" data-i18n="spacecraft" class="label strong">Spacecraft</text>
 <rect x="266" y="76" width="198" height="62" rx="10" class="aegis"/>
 <text x="280" y="100" class="name">AEGIS</text>
-<text x="280" y="120" class="tiny aegis-note note-ok">checks health, works offline</text>
-<text x="280" y="120" class="tiny aegis-note note-warn">⚠ heart rate unusual: alert</text>
-<text x="280" y="120" class="tiny aegis-note note-off">what to do now · reply ~40 min</text>
-<text x="280" y="120" class="tiny aegis-note note-good">✓ doctor's reply on screen</text>
+<text x="280" y="120" data-i18n="noteOk" class="tiny aegis-note note-ok">checks health, works offline</text>
+<text x="280" y="120" data-i18n="noteWarn" class="tiny aegis-note note-warn">⚠ heart rate unusual: alert</text>
+<text x="280" y="120" data-i18n="noteOff" class="tiny aegis-note note-off">what to do now · reply ~40 min</text>
+<text x="280" y="120" data-i18n="noteGood" class="tiny aegis-note note-good">✓ doctor's reply on screen</text>
 <rect x="266" y="152" width="198" height="62" rx="10" class="medlink"/>
-<text x="280" y="174" class="name">MEDLINK outbox</text>
+<text x="280" y="174" data-i18n="outbox" class="name">MEDLINK outbox</text>
 <g class="queue">
 <use href="#env" x="282" y="186" width="24" height="16" class="env q1"/>
 <use href="#env" x="312" y="186" width="24" height="16" class="env q2"/>
@@ -46,16 +46,16 @@
 <g class="link">
 <path d="M480 194H600" class="link-line"/>
 <path d="M524 180l20 28M544 180l-20 28" class="link-x"/>
-<text x="540" y="226" text-anchor="middle" class="tiny link-ok">space link</text>
-<text x="540" y="226" text-anchor="middle" class="tiny link-down">link down</text>
-<text x="540" y="226" text-anchor="middle" class="tiny link-short">short window</text>
+<text x="540" y="226" text-anchor="middle" data-i18n="linkOk" class="tiny link-ok">space link</text>
+<text x="540" y="226" text-anchor="middle" data-i18n="linkDown" class="tiny link-down">link down</text>
+<text x="540" y="226" text-anchor="middle" data-i18n="linkShort" class="tiny link-short">short window</text>
 </g>
 <!-- Earth -->
 <g class="earth">
 <circle cx="668" cy="150" r="62" class="planet"/>
 <path d="M630 128c14-8 26 2 34-6s22-4 26 8-10 16-22 14-22 10-30 2-16-10-8-18z" class="land"/>
 <path d="M650 182c10-6 22 0 30-2s14 6 8 12-24 4-30-2z" class="land"/>
-<text x="668" y="236" text-anchor="middle" class="label">Earth doctors</text>
+<text x="668" y="236" text-anchor="middle" data-i18n="earthDoctors" class="label">Earth doctors</text>
 <use href="#env" x="600" y="186" width="24" height="16" class="env reply"/>
 </g>
 </svg>

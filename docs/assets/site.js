@@ -1,3 +1,21 @@
+// Interface strings for the Turkish page; English is the markup default.
+(function () {
+  if (document.documentElement.lang !== 'tr') return;
+  const tr = {
+    filter: 'Bölümlerde ara…', plan: 'Plan', team: 'Takım', requestRole: 'Rol talep et', roleRequests: 'Rol talepleri',
+    repository: 'Depo', code: 'Kod', issues: 'Issue\'lar', pulls: 'Pull request\'ler', onThisPage: 'Bu sayfada',
+    editGithub: '✏️ Bu sayfayı GitHub\'da düzenle', btnRole: '🙋 Rol talep et', btnIssue: '💬 Issue aç', btnEdit: '✏️ Sayfayı düzenle',
+    astronaut: 'Astronot', spacecraft: 'Uzay aracı', noteOk: 'sağlığı izler, internetsiz',
+    noteWarn: '⚠ nabız olağandışı: uyarı', noteOff: 'ne yapmalı · yanıt ~40 dk', noteGood: '✓ doktorun yanıtı ekranda',
+    outbox: 'MEDLINK giden kutusu', linkOk: 'uzay bağlantısı', linkDown: 'bağlantı yok', linkShort: 'kısa pencere',
+    earthDoctors: 'Dünya\'daki doktorlar'
+  };
+  document.querySelectorAll('[data-i18n]').forEach((el) => { const t = tr[el.dataset.i18n]; if (t) el.textContent = t; });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    const t = tr[el.dataset.i18nPlaceholder]; if (t) { el.placeholder = t; el.setAttribute('aria-label', t); }
+  });
+})();
+
 // Builds both sidebars from the page's h2 headings, highlights the current section,
 // and handles the mobile drawer and theme toggle.
 (function () {
@@ -59,15 +77,27 @@
 (function () {
   const intro = document.querySelector('.intro');
   if (!intro) return;
-  const steps = [
-    'The watch reads the astronaut’s heart rate and sends it to the spacecraft over Bluetooth.',
-    'AEGIS compares it with that astronaut’s normal. Something is off, so it raises an alert.',
-    'MEDLINK turns the alert into a PulseBrief and sends it toward Earth.',
-    'The link breaks. The PulseBrief waits in the outbox in three layers: headline, context, evidence. The crew screen shows what to do now.',
-    'The link opens for only a few seconds. The headline goes first, so doctors already know what happened.',
-    'At the next window, the context and evidence follow. Nothing is lost.',
-    'Doctors on Earth reply. The answer travels back and shows on the crew screen.'
-  ];
+  const captions = {
+    en: [
+      'Heart-rate readings reach the spacecraft: from our simulator, or a wearable over Bluetooth.',
+      'AEGIS compares it with that astronaut’s normal. Something is off, so it raises an alert.',
+      'MEDLINK turns the alert into a PulseBrief and sends it toward Earth.',
+      'The link breaks. The PulseBrief waits in the outbox in three layers: headline, context, evidence. The crew screen shows what to do now.',
+      'The link opens for only a few seconds. The headline goes first, so doctors already know what happened.',
+      'At the next window, the context and evidence follow. Nothing is lost.',
+      'Doctors on Earth reply. The answer travels back and shows on the crew screen.'
+    ],
+    tr: [
+      'Nabız verileri uzay aracına ulaşır: simülatörümüzden ya da Bluetooth ile bir giyilebilir cihazdan.',
+      'AEGIS veriyi o astronotun normaliyle karşılaştırır. Bir terslik var, uyarı verir.',
+      'MEDLINK uyarıyı bir PulseBrief\'e dönüştürür ve Dünya\'ya gönderir.',
+      'Bağlantı kopar. PulseBrief giden kutusunda üç katman halinde bekler: başlık, bağlam, kanıt. Mürettebat ekranı şimdi ne yapılacağını gösterir.',
+      'Bağlantı yalnızca birkaç saniyeliğine açılır. Önce başlık gider; doktorlar ne olduğunu hemen öğrenir.',
+      'Bir sonraki pencerede bağlam ve kanıt da gelir. Hiçbir şey kaybolmaz.',
+      'Dünya\'daki doktorlar yanıt verir. Yanıt geri gelir ve mürettebat ekranında görünür.'
+    ]
+  };
+  const steps = captions[document.documentElement.lang] || captions.en;
   const text = intro.querySelector('.intro-text');
   const num = intro.querySelector('.intro-num');
   const dots = intro.querySelector('.intro-dots');

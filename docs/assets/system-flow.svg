@@ -12,13 +12,13 @@
 
   <rect x="40" y="92" width="200" height="72" rx="8" fill="none" stroke="#8c959f" stroke-width="1.25"/>
   <text x="56" y="116" font-weight="600" fill="#1f2328">Health input</text>
-  <text x="56" y="136" font-size="11.5" fill="#57606a">BLE heart-rate sensor</text>
-  <text x="56" y="152" font-size="11.5" fill="#57606a">simulated vitals, datasets</text>
+  <text x="56" y="136" font-size="11.5" fill="#57606a">simulator, NASA-based</text>
+  <text x="56" y="152" font-size="11.5" fill="#57606a">optional BLE sensor</text>
 
   <rect x="280" y="92" width="200" height="72" rx="8" fill="none" stroke="#8c959f" stroke-width="1.25"/>
-  <text x="296" y="116" font-weight="600" fill="#1f2328">AEGIS onboard AI</text>
-  <text x="296" y="136" font-size="11.5" fill="#57606a">personal baselines</text>
-  <text x="296" y="152" font-size="11.5" fill="#57606a">anomaly flags with reasons</text>
+  <text x="296" y="116" font-weight="600" fill="#1f2328">AEGIS health check</text>
+  <text x="296" y="136" font-size="11.5" fill="#57606a">compares with your normal</text>
+  <text x="296" y="152" font-size="11.5" fill="#57606a">flags unusual readings</text>
 
   <rect x="520" y="92" width="200" height="72" rx="8" fill="#2f6fd6" fill-opacity="0.12" stroke="#2f6fd6" stroke-width="2"/>
   <text x="536" y="116" font-weight="600" fill="#1f2328">MEDLINK node</text>
