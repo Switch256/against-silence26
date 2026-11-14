@@ -6,3 +6,6 @@ node_modules/
 .next/
 .env
 *.sqlite
+
+# Local submission notes (keep private)
+docs/SUBMISSION.md
