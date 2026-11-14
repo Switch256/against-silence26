@@ -1,6 +1,5 @@
 # Two real BPv7 nodes for MEDLINK. Start: docker compose -f backend/dtn/docker-compose.yml up -d
 # The backend cuts/restores the space link by disconnecting/connecting `earth` from `spacelink`.
-name: aegis-dtn
 services:
   spacecraft:
     build: .

@@ -11,7 +11,9 @@ export default function DemoPage() {
   useMissionPolling();
   // ?view=spacecraft|earth|overview picks the opening shot; the auto camera takes over from there.
   useEffect(() => {
-    const v = new URLSearchParams(window.location.search).get("view");
+    const q = new URLSearchParams(window.location.search);
+    const v = q.get("view");
+    if (q.get("crew") === "1") useStore.getState().setCrewOpen(true);     // ?crew=1 opens the crew record
     if (v === "spacecraft" || v === "earth" || v === "overview") useStore.getState().autoSetView(v as CameraView);
   }, []);
   return <Console />;

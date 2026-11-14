@@ -52,10 +52,13 @@ interface State {
   unread: number;
   logOpen: boolean;
   demoOpen: boolean;
+  /** crew record sheet (profile, measurement history, export) */
+  crewOpen: boolean;
   /** brief / reply ids that just arrived, for a short highlight */
   fresh: Record<string, number>;
   setLogOpen: (v: boolean) => void;
   setDemoOpen: (v: boolean) => void;
+  setCrewOpen: (v: boolean) => void;
   dismissToast: (id: string) => void;
 
   /** side panels (crew console / Earth console) can be hidden to give the 3D view the screen */
@@ -105,9 +108,11 @@ export const useStore = create<State>((set) => ({
   unread: 0,
   logOpen: false,
   demoOpen: false,
+  crewOpen: false,
   fresh: {},
   setLogOpen: (logOpen) => set(logOpen ? { logOpen, unread: 0 } : { logOpen }),
   setDemoOpen: (demoOpen) => set({ demoOpen }),
+  setCrewOpen: (crewOpen) => set({ crewOpen }),
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 
   panels: { crew: true, earth: true },

@@ -1,9 +1,13 @@
 "use client";
 // Full mission event log, opened from the bell, a toast or the ticker.
+import type { MissionEvent } from "@/lib/api";
 import { useEffect } from "react";
 import { utc } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import { CloseIcon } from "@/components/ui/icons";
+
+// Stable empty list: returning a new [] from a store selector re-renders forever (React error #185).
+const NO_EVENTS: MissionEvent[] = [];
 
 function label(kind: string) {
   const k = kind.toLowerCase();
@@ -22,7 +26,7 @@ function label(kind: string) {
 export function LogDrawer() {
   const open = useStore((s) => s.logOpen);
   const setOpen = useStore((s) => s.setLogOpen);
-  const events = useStore((s) => s.mission?.events ?? []);
+  const events = useStore((s) => s.mission?.events ?? NO_EVENTS);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);

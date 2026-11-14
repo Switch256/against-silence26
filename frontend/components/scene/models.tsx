@@ -9,6 +9,8 @@ import { BASE_PATH } from "@/lib/config";
 export const DRACO_PATH = `${BASE_PATH}/draco/`;
 export const MODEL = {
   iss: `${BASE_PATH}/models/iss.glb`,
+  /** iss.glb prepared in Blender: materials + sun-tracking array pivots (tools/blender/prep_aegis1.py) */
+  aegis1: `${BASE_PATH}/models/aegis1.glb`,
   dsn: `${BASE_PATH}/models/dsn-34m.glb`,
   astronaut: `${BASE_PATH}/models/astronaut.glb`,
   dsn70: `${BASE_PATH}/models/dsn-70m.glb`,
@@ -22,14 +24,16 @@ export const NASA_TEXTURE = {
   marsMap: `${BASE_PATH}/textures/nasa/mars_nasa_3d_resources.jpg`,
   moonMap: `${BASE_PATH}/textures/nasa/moon_lroc_color_1k.jpg`,
   earthNight: `${BASE_PATH}/textures/nasa/earth_black_marble_2012_3600.jpg`,
-  earthDay: `${BASE_PATH}/textures/nasa/earth_day_bluemarble_2048.jpg`,      // NASA SVS 2915 Blue Marble
+  earthDay: `${BASE_PATH}/textures/nasa/earth_day_bluemarble_4096.jpg`,      // NASA SVS 2915 Blue Marble (east+west halves, stitched)
   earthOcean: `${BASE_PATH}/textures/nasa/earth_ocean_mask_2048.png`,        // derived from the Blue Marble
+  /** NASA SVS 4851 Deep Star Maps 2020: starmap_2020_4k.exr (real stars + Milky Way) as JPEG */
+  sky: `${BASE_PATH}/textures/nasa/sky_deep_star_maps_2020_4k.jpg`,
   earthClouds: `${BASE_PATH}/textures/nasa/earth_clouds_svs3615_2048.png`,   // derived from NASA SVS 3615
 } as const;
 
 /** Preload what the first frame needs; the small orbiters load lazily behind Suspense. */
 export function preloadModels() {
-  [MODEL.iss, MODEL.dsn, MODEL.astronaut].forEach((url) => useGLTF.preload(url, DRACO_PATH));
+  [MODEL.aegis1, MODEL.dsn, MODEL.astronaut].forEach((url) => useGLTF.preload(url, DRACO_PATH));
 }
 
 /**

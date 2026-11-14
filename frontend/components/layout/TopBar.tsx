@@ -8,7 +8,7 @@ import { useNow } from "@/hooks/useNow";
 import { DSN_STATIONS } from "@/lib/constants";
 import { fmtDuration, pad2 } from "@/lib/format";
 import { oneWayDelayS, servingStation, useStore } from "@/lib/store";
-import { BellIcon, Logo } from "@/components/ui/icons";
+import { BellIcon, Logo, UserIcon } from "@/components/ui/icons";
 import { StatusText, type StatusLevel } from "@/components/ui/Status";
 import { spaceWeatherStatus } from "@/components/crew/SpaceWeather";
 
@@ -52,6 +52,15 @@ function SpaceWeatherChip() {
       <StatusText level={spaceWeatherStatus(sw.level)}>{word}</StatusText>
       {sw.mode === "replay" && <span className="tag">Replay</span>}
     </div>
+  );
+}
+
+function CrewButton() {
+  const setCrewOpen = useStore((s) => s.setCrewOpen);
+  return (
+    <button className="btn btn-quiet !px-2" onClick={() => setCrewOpen(true)} title="Crew record: profiles, every measurement, export" aria-label="Crew record">
+      <UserIcon className="h-[18px] w-[18px]" />
+    </button>
   );
 }
 
@@ -133,6 +142,7 @@ export function TopBar() {
         <SpaceWeatherChip />
         <div className="mx-1 h-6 w-px bg-line" />
         <PanelToggles />
+        <CrewButton />
         <Bell />
         <button className="btn" onClick={() => setDemoOpen(!demoOpen)} aria-expanded={demoOpen} title="Mission scenario controller (demo) · shortcut D">
           Demo controls

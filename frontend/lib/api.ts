@@ -144,6 +144,34 @@ export interface MissionState {
   space_weather?: SpaceWeatherBrief | null;
 }
 
+/** Crew record (GET /api/crew*). The crew is FICTIONAL; only the monitored member has telemetry. */
+export interface CrewProfile {
+  astronaut_id: string; name: string; sex?: string; age?: number; nationality?: string; country_code?: string;
+  role?: string; height_cm?: number; mass_kg?: number; blood_type?: string; allergies?: string; medications?: string;
+  monitored: boolean; sensor?: string; sampling?: string; mission?: string; simulated?: boolean; fictional?: boolean;
+}
+export interface CrewSummary {
+  profile: CrewProfile;
+  crew: CrewProfile[];
+  baseline: { heart_rate_rest: number | null; spo2_rest: number | null; window: string };
+  record: { readings: number; first: string | null; last: string | null; alerts: Partial<Record<Severity, number>>; last_checkin: { ts: string; feeling: string; symptom: string | null } | null };
+}
+/** One row of the history: a raw reading, or (step_s > 0) the average of a time bucket. */
+export interface HistoryRow {
+  ts: string; heart_rate: number; spo2: number | null; activity: string;
+  signal_quality?: string; source?: string;
+  heart_rate_min?: number; heart_rate_max?: number; spo2_min?: number | null; samples?: number; poor_signal?: number;
+}
+export interface HistoryAlert { ts: string; alert_id: string; metric: string; value: number; baseline: number | null; severity: Severity; reason: string }
+export interface CrewHistory {
+  total_readings: number; step_s: number; readings: HistoryRow[]; alerts: HistoryAlert[];
+  checkins: { ts: string; feeling: string; symptom: string | null }[]; next_before: string | null;
+}
+export type ExportDataset = "readings" | "alerts" | "checkins" | "all";
+
+const qs = (o: Record<string, string | number | undefined | null>) =>
+  Object.entries(o).filter(([, v]) => v != null && v !== "").map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join("&");
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -179,4 +207,11 @@ export const api = {
   openWindow: (budget_bytes = 250, duration_s = 8) => request("/api/link/window", { budget_bytes, duration_s }),
   reply: (brief_id: string, text: string) => request("/api/earth/reply", { brief_id, text }),
   reset: () => request("/api/reset", {}),
+
+  crew: (s?: AbortSignal) => request<CrewSummary>("/api/crew", undefined, s),
+  crewHistory: (p: { start?: string; step_s?: number; limit?: number; before?: string | null }, s?: AbortSignal) =>
+    request<CrewHistory>(`/api/crew/history?${qs(p)}`, undefined, s),
+  /** URL of a download (served with Content-Disposition: attachment). */
+  crewExportUrl: (dataset: ExportDataset, format: "csv" | "json", start?: string) =>
+    `${API_BASE}/api/crew/export?${qs({ dataset, format, start })}`,
 };

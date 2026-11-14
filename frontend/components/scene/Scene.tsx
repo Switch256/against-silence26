@@ -1,8 +1,11 @@
 "use client";
 // Situational-awareness view: Earth with the DSN complexes, the AEGIS-1 habitat, Mars, the link
 // and the bundles on it. Physically plausible lighting: one directional Sun with soft shadows,
-// almost no ambient, ACES tone mapping at modest exposure, no bloom.
+// almost no ambient, ACES tone mapping at modest exposure. Bloom only catches HDR emissives
+// (nav lights, the link beam, packets), matching the Blender film; lit surfaces stay below threshold.
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Bloom, EffectComposer, ToneMapping } from "@react-three/postprocessing";
+import { ToneMappingMode } from "postprocessing";
 import { Suspense, useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useLinkVisual } from "@/hooks/useLinkVisual";
@@ -74,7 +77,9 @@ function World() {
       <hemisphereLight args={["#2b3a52", "#000000", 0.18]} />
       <Sun />
 
-      <Starfield />
+      <Suspense fallback={null}>
+        <Starfield />
+      </Suspense>
       <Suspense fallback={<EarthPlaceholder />}>
         <Earth serving={serving} />
       </Suspense>
@@ -90,6 +95,11 @@ function World() {
       <LinkLine link={link} windowLeftS={link === "window" ? windowSecondsLeft(sc?.link.window_until) : null} />
       <Packets />
       <CameraRig />
+      {/* the composer disables renderer tone mapping while mounted, so ACES runs as the last pass */}
+      <EffectComposer multisampling={4}>
+        <Bloom mipmapBlur luminanceThreshold={1.1} luminanceSmoothing={0.2} intensity={0.9} radius={0.7} />
+        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      </EffectComposer>
     </>
   );
 }

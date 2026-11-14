@@ -6,7 +6,7 @@ import { useCallback, useEffect } from "react";
 import { api, ApiError, type Feeling, type Scenario } from "@/lib/api";
 import { MISSION_RETRY_MS, POLL_MS } from "@/lib/config";
 import { ingestSnapshot, resetTracker, useStore } from "@/lib/store";
-import { demoEarth, demoMission, demoSpacecraft, demoStats } from "@/lib/demo";
+import { demoEarth, demoMission, demoSpaceWeather, demoSpacecraft, demoStats } from "@/lib/demo";
 import { ingestEvents, resetNotifications } from "@/lib/notifications";
 
 let missionNextTry = 0;
@@ -34,7 +34,7 @@ async function pollOnce() {
     if (++failures >= 3) {
       // The public showcase deliberately works without a backend or login.
       ingestSnapshot(demoSpacecraft, demoEarth);
-      useStore.setState({ spacecraft: demoSpacecraft, earth: demoEarth, stats: demoStats, mission: demoMission, online: true, demoFallback: true, lastUpdate: Date.now() });
+      useStore.setState({ spacecraft: demoSpacecraft, earth: demoEarth, stats: demoStats, mission: demoMission, spaceWeather: demoSpaceWeather, online: true, demoFallback: true, lastUpdate: Date.now() });
     }
   } finally {
     window.clearTimeout(timer);

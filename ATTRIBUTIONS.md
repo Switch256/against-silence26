@@ -36,10 +36,24 @@ All from [NASA 3D Resources](https://science.nasa.gov/3d-resources/) ([github.co
 | `moon_lroc_color_1k.jpg` | Lunar colour map (LRO LROC): the 3D Moon | NASA Goddard Scientific Visualization Studio, [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720) |
 | `earth_black_marble_2012_3600.jpg` | Earth at night, 2012 (Black Marble): city lights on the night side of the 3D Earth | NASA Earth Observatory, [Night Lights 2012](https://visibleearth.nasa.gov/images/79765/night-lights-2012-map) |
 | `earth_day_bluemarble_2048.jpg` | Blue Marble: Earth's land surface and oceans, the day side of the 3D Earth | NASA Goddard Scientific Visualization Studio, [Blue Marble: A Seamless Image Mosaic of the Earth](https://svs.gsfc.nasa.gov/2915) (converted to JPEG) |
+| `earth_day_bluemarble_4096.jpg` | Sharper day side for the live 3D Earth in the console (4096×2048, downsampled from the stitched 8192 map) | NASA Goddard SVS, [Blue Marble](https://svs.gsfc.nasa.gov/2915) (east + west 4096 halves, stitched) |
+| `sky_deep_star_maps_2020_4k.jpg` | Sky of the live 3D view: real stars (Hipparcos-2, Tycho-2, Gaia DR2) and the Milky Way with its dust lanes (converted from EXR) | NASA Goddard SVS, [Deep Star Maps 2020](https://svs.gsfc.nasa.gov/4851) (`starmap_2020_4k.exr`) |
 | `earth_ocean_mask_2048.png` | Ocean mask for sun glint, derived by the team from the Blue Marble above | NASA SVS 2915 (derived) |
 | `earth_clouds_svs3615_2048.png` | Cloud layer, derived by the team (bright, colourless pixels) from NASA's cloud-covered equirectangular Earth | NASA Goddard SVS, [Equirectangular Projected Earth](https://svs.gsfc.nasa.gov/3615) (derived) |
 
 All Earth, Moon and Mars imagery is now NASA-sourced; no third-party textures remain.
+
+## Rendered and derived assets (made with Blender 5.2 by the team)
+
+| File | What it is | NASA sources |
+| --- | --- | --- |
+| `frontend/public/models/aegis1.glb` | AEGIS-1 web model: the NASA ISS (B) model with the detached floating parts removed, the 8 solar-array wings split into rotatable nodes, and simple named materials (`tools/blender/prep_aegis1.py`) | NASA 3D Resources, [International Space Station (ISS) (B)](https://science.nasa.gov/3d-resources/international-space-station-iss-b/) |
+| `tools/blender/textures/earth_day_bluemarble_8192.jpg` | 8192×4096 day Earth used only for the Blender renders (sharper full-screen video); the east and west 4096 px halves stitched by the team | NASA Goddard SVS, [Blue Marble](https://svs.gsfc.nasa.gov/2915) (`bluemarble-west-4096.png` + `bluemarble-east-4096.png`) |
+| `frontend/public/media/hero-1080.mp4`, `hero-720.mp4`, `hero-1080.webm`, `hero-poster.jpg` | Landing hero loop (10 s): AEGIS-1 above the Earth's limb with the DTN link beam and a PulseBrief packet (`tools/blender/aegis_scene.py --mode hero`) | ISS (B) model (as above); Blue Marble 8192 (SVS 2915, stitched); Black Marble 2012 night lights; cloud layer and ocean mask derived from SVS 3615 / SVS 2915 |
+| `frontend/public/media/story-media-720.mp4` | "How it works" clip (8 s): the link drops, bundles queue, the link returns, the bundles are delivered in priority order and a reply comes back (`tools/blender/aegis_scene.py --mode story`) | Same as the hero loop |
+
+The starfield, atmosphere, sun glow, link beam, packets and navigation lights are procedural shaders made by the team.
+The Earth scale and spacecraft scale are artistic (not to scale). The spacecraft is the NASA ISS model, standing in for AEGIS-1.
 
 ## Software
 

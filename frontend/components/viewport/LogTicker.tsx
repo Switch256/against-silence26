@@ -9,6 +9,9 @@ import { COLORS } from "@/lib/constants";
 import { utc } from "@/lib/format";
 import { useStore } from "@/lib/store";
 
+// Stable empty list: returning a new [] from a store selector re-renders forever (React error #185).
+const NO_EVENTS: MissionEvent[] = [];
+
 const HOLD_MS = 3200;
 const RECENT = 12;
 
@@ -26,7 +29,7 @@ function colorOf(e: MissionEvent): string {
 }
 
 export function LogTicker() {
-  const events = useStore((s) => s.mission?.events ?? []);
+  const events = useStore((s) => s.mission?.events ?? NO_EVENTS);
   const openLog = useStore((s) => s.setLogOpen);
   const items = events.slice(0, RECENT);                 // newest first
   const newestKey = items[0] ? `${items[0].ts}|${items[0].text}` : "";
