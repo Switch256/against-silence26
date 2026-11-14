@@ -33,7 +33,9 @@ jobs:
           source: docs
           destination: ./_site
       - name: Add frontend demo to Pages artifact
-        run: cp -R frontend/out ./_site/demo
+        run: |
+          sudo cp -R frontend/out ./_site/demo
+          sudo chown -R "$USER:$USER" ./_site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
