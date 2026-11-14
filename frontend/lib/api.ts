@@ -172,6 +172,7 @@ export const api = {
 
   simStep: (scenario: Scenario, count: number, force = false) => request("/api/sim/step", { scenario, count, force }),
   checkin: (feeling: Feeling, symptom: string | null) => request("/api/checkin", { feeling, symptom }),
+  escalate: (reason: "no_response" | "crew_request") => request("/api/escalate", { reason }),
   markDone: (alertId: string, step: string) =>
     request(`/api/alerts/${encodeURIComponent(alertId)}/done`, { step }),
   setLink: (state: "up" | "down") => request("/api/link", { state }),

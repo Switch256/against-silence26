@@ -199,6 +199,16 @@ def live_control(body: LiveControl):
     return m.live.state()
 
 
+class Escalation(BaseModel):
+    reason: Literal["no_response", "crew_request"]
+
+
+@app.post("/api/escalate", tags=["spacecraft"])
+def escalate(body: Escalation):
+    """Emergency check result: crew asked for Earth, or did not answer. Sends an urgent PulseBrief at once."""
+    return mission().escalate(body.reason)
+
+
 class Replay(BaseModel):
     scenario: Literal["may-2024", "live"]
 

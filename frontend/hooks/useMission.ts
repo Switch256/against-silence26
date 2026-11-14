@@ -96,6 +96,7 @@ export function useMission() {
   const actions = {
     sim: (scenario: Scenario, count: number, force = false) => run(api.simStep(scenario, count, force)),
     checkin: (feeling: Feeling, symptom: string | null) => run(api.checkin(feeling, symptom)),
+    escalate: (reason: "no_response" | "crew_request") => run(api.escalate(reason)),
     markDone: (alertId: string, step: string) => run(api.markDone(alertId, step)),
     setLink: (state: "up" | "down") => run(api.setLink(state)),
     openWindow: (budgetBytes = 250, durationS = 8) => run(api.openWindow(budgetBytes, durationS)),

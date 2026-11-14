@@ -73,3 +73,12 @@ def test_events_carry_brief_and_reply_ids(client):
                if d["bundle_id"].startswith(brief_id))
     assert by_kind["reply_queued"][0]["brief_id"] == brief_id and by_kind["reply_queued"][0]["reply_id"]
     assert by_kind["reply_delivered"][0]["reply_id"] == by_kind["reply_queued"][0]["reply_id"]
+
+
+def test_escalation_sends_an_urgent_brief_to_earth(client):
+    r = client.post("/api/escalate", json={"reason": "no_response"}).json()
+    assert r["alert"]["metric"] == "crew_check" and r["alert"]["severity"] == "urgent"
+    brief = next(b for b in client.get("/api/earth").json()["briefs"] if b["brief_id"] == r["brief_id"])
+    assert brief["layers"]["headline"]["m"] == "crew_check" and brief["layers"]["headline"]["sev"] == "urgent"
+    assert "did not answer" in brief["layers"]["context"]["reason"]
+    assert client.post("/api/escalate", json={"reason": "bogus"}).status_code == 422

@@ -22,7 +22,8 @@ GROUND_STATIONS = [
     {"name": "DSN Madrid", "lat": 40.43, "lon": -4.25},
     {"name": "DSN Canberra", "lat": -35.40, "lon": 148.98},
 ]
-METRIC_LABEL = {"heart_rate": ("Heart rate", " bpm"), "spo2": ("SpO2", "%"), "space_weather": ("Space weather", "")}
+METRIC_LABEL = {"heart_rate": ("Heart rate", " bpm"), "spo2": ("SpO2", "%"), "space_weather": ("Space weather", ""),
+                "crew_check": ("Crew check", "")}
 # Real NASA DONKI events that can be replayed on stage: the start of the May 2024 solar storm.
 REPLAYS = {"may-2024": datetime(2024, 5, 9, 14, 30, tzinfo=timezone.utc)}
 SCENARIO_HOLD = timedelta(seconds=45)    # a demo scenario keeps streaming this long, then back to normal
@@ -212,6 +213,26 @@ class Mission:
                        feeling=c.feeling, symptom=c.symptom)
         refreshed = self._refresh_latest_context(c.astronaut_id)
         return {"checkin": c, "context_updated": refreshed}
+
+    def escalate(self, reason: str) -> dict:
+        """Crew asked for Earth, or did not answer AEGIS's emergency check: send an urgent PulseBrief now."""
+        unresponsive = reason == "no_response"
+        text = ("The crew did not answer AEGIS's emergency check within 10 seconds. The astronaut may be unable to respond."
+                if unresponsive else "The crew asked AEGIS to contact Earth during an urgent alert.")
+        history = self.history(self.settings.astronaut_id)
+        latest = history[-1] if history else None
+        alert = Alert(alert_id=f"al-{uuid.uuid4().hex[:10]}", astronaut_id=self.settings.astronaut_id,
+                      ts=datetime.now(timezone.utc), metric="crew_check", value=latest.heart_rate if latest else 0.0,
+                      baseline=None, deviation=None, severity="urgent", reason=text,
+                      activity=latest.activity if latest else "rest",
+                      signal_quality=latest.signal_quality if latest else "good",
+                      todo=["Earth: review the latest vitals now", "Earth: reply with instructions", "Crew: stay where you are"])
+        self._store_alert(alert)
+        events.log(self.pool, "alert", "Crew did not answer: escalated to Earth" if unresponsive else "Crew asked to contact Earth",
+                   alert_id=alert.alert_id, brief_id=alert.alert_id.replace("al-", "pb-", 1), metric="crew_check",
+                   value=alert.value, severity="urgent", reason=reason)
+        brief_id = self._send_brief(alert, history)
+        return {"alert": alert, "brief_id": brief_id}
 
     def mark_done(self, alert_id: str, step: str) -> dict:
         with self.pool.connection() as conn:

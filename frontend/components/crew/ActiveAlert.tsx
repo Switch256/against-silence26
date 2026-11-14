@@ -7,6 +7,7 @@ import { useMission } from "@/hooks/useMission";
 import type { Alert, Bundle } from "@/lib/api";
 import { COLORS, SEVERITY } from "@/lib/constants";
 import { briefIdOf, metricLabel, metricUnit, utc } from "@/lib/format";
+import { possibleCauses } from "@/lib/possibleCauses";
 import { CheckIcon, ChevronIcon } from "@/components/ui/icons";
 import { StatusMark, StatusText, type StatusLevel } from "@/components/ui/Status";
 
@@ -49,6 +50,30 @@ function Checklist({ alert }: { alert: Alert }) {
         );
       })}
     </ol>
+  );
+}
+
+/** Possible causes with first steps (adapted from Mariam Saied's rule cards). */
+function Causes({ alert, activity }: { alert: Alert; activity?: string }) {
+  const causes = possibleCauses(alert, activity);
+  const [open, setOpen] = useState<string | null>(null);
+  if (!causes.length) return null;
+  return (
+    <div>
+      <div className="mb-1 text-[12px] font-semibold text-fg-2">Possible causes</div>
+      <ul className="space-y-1">
+        {causes.map((c) => (
+          <li key={c.title} className="rounded-lg bg-white/[0.03]">
+            <button className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px]" onClick={() => setOpen(open === c.title ? null : c.title)} aria-expanded={open === c.title}>
+              <span><span className="font-medium text-fg">{c.title}</span><span className="text-fg-3"> · {c.why}</span></span>
+              <ChevronIcon className={`ml-2 h-3.5 w-3.5 shrink-0 text-fg-3 transition-transform ${open === c.title ? "rotate-180" : ""}`} />
+            </button>
+            {open === c.title && <ol className="list-decimal space-y-0.5 pr-2.5 pb-2 pl-7 text-[12px] text-fg-2">{c.steps.map((st) => <li key={st}>{st}</li>)}</ol>}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1 text-[10.5px] text-fg-4">General wellness guidance for a simulation, not medical advice.</p>
+    </div>
   );
 }
 
@@ -106,6 +131,7 @@ export function ActiveAlert() {
           <p className="text-[13px] leading-5 text-fg-2">{a.reason}</p>
           <div className="text-[12px]"><StatusText level={ev.level} className="!font-normal">{ev.text}</StatusText></div>
           <Checklist alert={a} />
+          <Causes alert={a} activity={spacecraft?.readings.at(-1)?.activity} />
         </div>
       )}
     </div>

@@ -50,7 +50,7 @@ class Alert(BaseModel):
     alert_id: str
     astronaut_id: str
     ts: datetime
-    metric: Literal["heart_rate", "spo2", "space_weather"]
+    metric: Literal["heart_rate", "spo2", "space_weather", "crew_check"]
     value: float
     baseline: float | None
     deviation: float | None = Field(description="z-score against the personal baseline")

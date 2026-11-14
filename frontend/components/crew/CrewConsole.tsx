@@ -7,6 +7,7 @@ import { ProvenanceTag, provenanceOf } from "@/components/ui/Status";
 import { ActiveAlert } from "./ActiveAlert";
 import { AstronautThumb } from "./AstronautThumb";
 import { CheckIn } from "./CheckIn";
+import { EmergencyCheck } from "./EmergencyCheck";
 import { EarthLinkStatus } from "./EarthLinkStatus";
 import { EarthMessages } from "./EarthMessages";
 import { HeartRate } from "./HeartRate";
@@ -37,7 +38,7 @@ export function CrewConsole() {
         <HeartRate readings={readings} alertBaseline={alertRecent ? hrAlert?.baseline ?? null : null} />
         <div className="mt-1.5"><VitalsLine last={last} /></div>
       </Section>
-      <Section title="Alert"><ActiveAlert /></Section>
+      <Section title="Alert"><EmergencyCheck /><ActiveAlert /></Section>
       <Section title="How do you feel?"><CheckIn /></Section>
       <Section title="Earth link"><EarthLinkStatus /></Section>
       <Section title="Space weather" right={<ProvenanceTag value="nasa-donki" />}><SpaceWeather /></Section>

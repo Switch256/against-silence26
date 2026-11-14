@@ -13,9 +13,9 @@ export function fmtDuration(s: number) {
 }
 
 export const metricLabel = (m?: string) =>
-  m === "heart_rate" ? "Heart rate" : m === "spo2" ? "Blood oxygen (SpO₂)" : m === "space_weather" ? "Space weather" : m ? m.replace(/_/g, " ") : "Metric";
+  m === "heart_rate" ? "Heart rate" : m === "spo2" ? "Blood oxygen (SpO₂)" : m === "space_weather" ? "Space weather" : m === "crew_check" ? "Crew check" : m ? m.replace(/_/g, " ") : "Metric";
 
-export const metricUnit = (m?: string) => (m === "heart_rate" ? "bpm" : m === "spo2" ? "%" : "");
+export const metricUnit = (m?: string) => (m === "heart_rate" || m === "crew_check" ? "bpm" : m === "spo2" ? "%" : "");
 
 /** Value as shown to the crew / doctor, e.g. "112 bpm", "89 %", "2 solar particle events". */
 export function metricValue(m: string | undefined, v: number | null | undefined) {
