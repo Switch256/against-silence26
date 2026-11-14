@@ -190,8 +190,6 @@ Three people, three clear lanes. Each lane plugs into the others through the sha
 | **Asasira Martin** (lead) | FastAPI backend, health-data processing (AEGIS), BLE integration, MEDLINK | Data in → AEGIS alert → PulseBrief → BPv7 delivery, with the blackout simulator |
 | **Mariam Saied** | Next.js frontend: the astronaut dashboard and the Earth console | Both screens as a PWA, working against mock data first, then the live API |
 | **David Kitasho** | End-to-end testing, demo scenarios, bug reporting | Test checklist, the demo script, bugs filed as issues, screenshots for the slides |
-| Zekeriyamrcn | Not accepted | — |
-| Nur Sima Akgül | No contact yet | — |
 
 **Want a role, or want to change yours?** [Request a role](https://github.com/Switch256/against-silence26/issues/new?template=role.yml). Anything else (a question, a blocker, an idea): [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
 

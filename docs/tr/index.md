@@ -191,8 +191,6 @@ against-silence26/
 | **Asasira Martin** (lider) | FastAPI backend, sağlık verisi işleme (AEGIS), BLE entegrasyonu, MEDLINK | Veri girişi → AEGIS uyarısı → PulseBrief → BPv7 teslimi, kesinti simülatörüyle birlikte |
 | **Mariam Saied** | Next.js frontend: astronot paneli ve Dünya konsolu | İki ekran da PWA olarak; önce sahte veriyle, sonra canlı API ile |
 | **David Kitasho** | Uçtan uca test, demo senaryoları, hata bildirimi | Test kontrol listesi, demo senaryosu, issue olarak açılmış hatalar, slaytlar için ekran görüntüleri |
-| Zekeriyamrcn | Kabul edilmedi | — |
-| Nur Sima Akgül | Henüz iletişim yok | — |
 
 **Rol mü istiyorsunuz, ya da rolünüzü değiştirmek mi?** [Rol talep edin](https://github.com/Switch256/against-silence26/issues/new?template=role.yml). Başka her şey için (soru, engel, fikir): [issue açın](https://github.com/Switch256/against-silence26/issues/new/choose).
 
