@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google" content="notranslate">
+  <title>Crew Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-level="normal">
+
+  <header class="topbar">
+    <div class="crew">CREW-01</div>
+    <div class="link"><span class="dot"></span>CONNECTED TO EARTH</div>
+    <div class="badge">SIMULATED DATA</div>
+  </header>
+
+  <aside class="panel">
+
+    <!-- Level selector: normal / low / medium / high -->
+    <div class="levels" id="levels">
+      <button class="lvl normal active" data-level="normal" title="Normal"></button>
+      <button class="lvl low"    data-level="low"    title="Low"></button>
+      <button class="lvl medium" data-level="medium" title="Medium"></button>
+      <button class="lvl high"   data-level="high"   title="High"></button>
+    </div>
+
+    <section class="card">
+      <h2>PULSE</h2>
+      <div class="big"><span id="hr">72</span><small>BPM</small></div>
+      <p class="sub">YOUR NORMAL: 72</p>
+      <span class="status" id="status">● NORMAL</span>
+      <p class="reason" id="reason">ALL READINGS WITHIN YOUR NORMAL</p>
+    </section>
+
+    <!-- HIGH level: countdown, accept / refuse, then contact Earth -->
+    <section class="card emergency" id="emergency" data-state="counting" hidden>
+      <h2 id="emTitle">HIGH ALERT</h2>
+      <p class="em-text" id="emText"></p>
+      <div class="em-count" id="emCount">10</div>
+      <div class="em-bar" id="emBar"><div class="em-fill" id="emFill"></div></div>
+      <p class="em-hint" id="emHint">EARTH WILL BE CONTACTED AUTOMATICALLY WHEN THE TIMER ENDS</p>
+      <div class="em-buttons" id="emButtons">
+        <button class="em-btn accept" id="btnAccept" type="button">ACCEPT</button>
+        <button class="em-btn refuse" id="btnRefuse" type="button">REFUSE</button>
+      </div>
+    </section>
+
+    <!-- Problem cards: all matching cards for LOW and MEDIUM are listed here -->
+    <div class="alert-list" id="alertList" hidden></div>
+
+    <section class="card ecg">
+      <h2>LIVE ECG</h2>
+      <svg viewBox="0 0 300 70">
+        <line x1="0" x2="300" y1="48" y2="48" class="base"/>
+        <polyline id="trace" class="trace" points=""/>
+        <circle id="tip" r="3.5" class="tip" cx="299" cy="48"/>
+      </svg>
+    </section>
+
+    <div class="mini-row">
+      <section class="card mini">
+        <h2>OXYGEN</h2>
+        <div class="val"><span id="spo2">98</span><small>%</small></div>
+      </section>
+
+      <section class="card mini">
+        <h2>SLEEP</h2>
+        <div class="val"><span id="sleep">7.1</span><small>HRS</small></div>
+      </section>
+    </div>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>
