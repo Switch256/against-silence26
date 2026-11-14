@@ -6,6 +6,9 @@ from alembic import command
 from alembic.config import Config
 
 from app import config  # noqa: F401  (loads backend/.env)
+
+os.environ["MEDLINK_TRANSPORT"] = "local"      # unit/API tests run in-process; see test_dtn.py for BPv7
+os.environ["LIVE_SIM"] = "0"                   # deterministic tests: no background telemetry
 from app.db import open_pool, reset
 
 BACKEND = Path(__file__).resolve().parent.parent

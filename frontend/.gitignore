@@ -3,6 +3,7 @@ node_modules/
 
 # Framework build output
 .next/
+.next-dev/
 out/
 dist/
 .turbo/

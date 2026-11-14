@@ -12,7 +12,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import db, medlink
+from . import db, events, medlink
 from .config import get_settings
 from .mission import Mission
 from .models import CheckIn, Reading
@@ -24,13 +24,16 @@ async def lifespan(app: FastAPI):
     settings = get_settings(getattr(app.state, "database_url", None))
     pool = db.open_pool(settings.database_url)
     app.state.mission = Mission(pool, settings)
+    app.state.mission.start()
     yield
+    app.state.mission.stop()
     pool.close()
 
 
 app = FastAPI(title="AEGIS-MEDLINK", version="0.1.0", lifespan=lifespan,
               description="Onboard health check (AEGIS) and delay-tolerant medical link (MEDLINK).")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000",
+                                                  "http://localhost:3001", "http://127.0.0.1:3001"],
                    allow_methods=["*"], allow_headers=["*"])
 app.mount("/proto", StaticFiles(directory=Path(__file__).parent / "static" / "proto", html=True), name="proto")
 
@@ -42,6 +45,7 @@ def mission() -> Mission:
 class SimStep(BaseModel):
     scenario: Literal[SCENARIOS] = "normal"          # type: ignore[valid-type]
     count: int = Field(default=1, ge=1, le=600)
+    force: bool = Field(default=False, description="guarantee an alert even if cooldown/baseline would suppress it")
 
 
 class LinkChange(BaseModel):
@@ -50,6 +54,7 @@ class LinkChange(BaseModel):
 
 class Window(BaseModel):
     budget_bytes: int = Field(default=250, ge=1, le=100_000)
+    duration_s: float = Field(default=8, ge=1, le=60, description="how long the link shows 'window' before dropping")
 
 
 class DoneStep(BaseModel):
@@ -81,11 +86,10 @@ def post_reading(reading: Reading):
 
 @app.post("/api/sim/step", tags=["spacecraft"])
 def sim_step(body: SimStep):
-    """Generate simulated readings and ingest them. Use scenario 'spike' to trigger an alert."""
-    m = mission()
-    results = [m.ingest(m.sim.next(body.scenario)) for _ in range(body.count)]
+    """Generate simulated readings and ingest them. 'spike' raises an alert; force=true guarantees one."""
+    results = mission().simulate(body.scenario, body.count, body.force)
     alerts = [r["alert"] for r in results if r["alert"]]
-    return {"generated": body.count, "alerts": alerts, "last_reading": results[-1]["reading"]}
+    return {"generated": len(results), "alerts": alerts, "last_reading": results[-1]["reading"]}
 
 
 @app.post("/api/checkin", tags=["spacecraft"])
@@ -119,6 +123,7 @@ def spacecraft(readings: int = 120):
         "link": medlink.link(m.pool),
         "eta": m.eta(),
         "replies": medlink.replies(m.pool, "delivered"),
+        "transport": m.settings.transport,
     }
 
 
@@ -128,14 +133,14 @@ def spacecraft(readings: int = 120):
 def set_link(body: LinkChange):
     """Cut ('down') or restore ('up') the space link. Restoring flushes the outbox."""
     m = mission()
-    return {"sent": medlink.set_link(m.pool, m.earth, body.state), "link": medlink.link(m.pool)}
+    return {"sent": m.set_link(body.state), "link": medlink.link(m.pool)}
 
 
 @app.post("/api/link/window", tags=["link"])
 def link_window(body: Window):
-    """A short contact: send what fits in budget_bytes, then the link drops again."""
+    """A short contact: send what fits in budget_bytes; link shows 'window' for duration_s, then drops."""
     m = mission()
-    return {"sent": medlink.open_window(m.pool, m.earth, body.budget_bytes), "link": medlink.link(m.pool)}
+    return {"sent": m.open_window(body.budget_bytes, body.duration_s), "link": medlink.link(m.pool)}
 
 
 # ---- Earth ----
@@ -150,11 +155,81 @@ def earth():
 @app.post("/api/earth/reply", tags=["earth"])
 def earth_reply(body: ReplyIn):
     """Doctor's reply. Delivered to the spacecraft when the link is up."""
-    m = mission()
-    return {"reply_id": medlink.reply(m.pool, m.earth, body.brief_id, body.text)}
+    return {"reply_id": mission().reply(body.brief_id, body.text)}
+
+
+# ---- mission (3D simulation) ----
+
+@app.get("/api/mission", tags=["mission"])
+def mission_overview():
+    """Spacecraft, link, ground station, BPv7 node counters and the latest 40 events (newest first)."""
+    return mission().overview()
+
+
+@app.get("/api/events", tags=["mission"])
+def list_events(since_id: int = 0):
+    """Events with id > since_id, oldest first. Poll with the last id you saw."""
+    return events.since(mission().pool, since_id)
 
 
 # ---- system ----
+
+class LiveControl(BaseModel):
+    running: bool | None = None
+    scenario: Literal[SCENARIOS] | None = None       # type: ignore[valid-type]
+
+
+@app.get("/api/sim/live", tags=["spacecraft"])
+def live_state():
+    """Live telemetry stream: one simulated reading per second (LIVE_SIM=1)."""
+    m = mission()
+    return m.live.state() if m.live else {"running": False, "scenario": None, "until": None, "interval_s": None}
+
+
+@app.post("/api/sim/live", tags=["spacecraft"])
+def live_control(body: LiveControl):
+    """Pause/resume the live stream, or switch the scenario it streams (held for 45 s, then normal)."""
+    m = mission()
+    if not m.live:
+        raise HTTPException(409, "live telemetry is off (set LIVE_SIM=1 in backend/.env)")
+    if body.running is not None:
+        (m.live.running.set if body.running else m.live.running.clear)()
+    if body.scenario:
+        m.live.hold(body.scenario)
+    return m.live.state()
+
+
+class Escalation(BaseModel):
+    reason: Literal["no_response", "crew_request"]
+
+
+@app.post("/api/escalate", tags=["spacecraft"])
+def escalate(body: Escalation):
+    """Emergency check result: crew asked for Earth, or did not answer. Sends an urgent PulseBrief at once."""
+    return mission().escalate(body.reason)
+
+
+class Replay(BaseModel):
+    scenario: Literal["may-2024", "live"]
+
+
+@app.get("/api/space-weather", tags=["space weather"])
+def space_weather():
+    """Crew space-weather environment from NASA DONKI: level, headline, active and recent events."""
+    return mission().space_weather()
+
+
+@app.post("/api/space-weather/refresh", tags=["space weather"])
+def space_weather_refresh():
+    """Fetch the last 30 days from NASA DONKI (needs network; NASA_API_KEY raises the rate limit)."""
+    return mission().refresh_space_weather()
+
+
+@app.post("/api/space-weather/replay", tags=["space weather"])
+def space_weather_replay(body: Replay):
+    """Replay a real past DONKI event as if it were happening now (raises an AEGIS alert), or go back to live."""
+    return mission().replay_space_weather(body.scenario)
+
 
 @app.get("/api/stats", tags=["system"])
 def stats():
@@ -166,4 +241,5 @@ def stats():
 def reset():
     """Empty all tables for a fresh demo run."""
     db.reset(mission().pool)
+    mission().space_weather_as_of = None            # NASA DONKI data itself is kept across resets
     return {"ok": True}
