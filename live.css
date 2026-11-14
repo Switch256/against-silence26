@@ -1,0 +1,174 @@
+/* ===== Live readings from the astronaut's watch (Earth station) ===== */
+.card.lv-card {
+  --lv: #4ade80;                       /* color of the current level */
+  padding: 8px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;      /* readings on the left, ECG on the right */
+  gap: 12px;
+  align-items: center;
+  border-color: var(--lv);
+  box-shadow: 0 0 8px var(--lv);
+  transition: border-color .3s, box-shadow .3s;
+}
+
+.lv-card[data-level="normal"] { --lv: #4ade80; }
+.lv-card[data-level="low"]    { --lv: #facc15; }
+.lv-card[data-level="medium"] { --lv: #fb923c; }
+.lv-card[data-level="high"]   { --lv: #ef4444; }
+
+.lv-left,
+.lv-right {
+  min-width: 0;
+}
+
+.lv-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.lv-link {
+  padding: 0 6px;
+  border: 2px solid var(--label);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--label);
+  white-space: nowrap;
+}
+
+.lv-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 6px;
+}
+
+.lv-box {
+  padding: 3px 8px;
+  background: rgba(10, 6, 24, .6);
+  border-left: 3px solid var(--lv);
+  min-width: 0;
+}
+
+.lv-box small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--label);
+  opacity: .85;
+}
+
+.lv-val {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--num-font);
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.1;
+  color: #fff;
+}
+
+.lv-box.big .lv-val {
+  font-size: 26px;
+}
+
+.lv-unit {
+  margin-left: 3px;
+  font-family: var(--text-font);
+  font-weight: 400;
+  font-size: 9px;
+  color: var(--label);
+}
+
+.lv-status-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 5px;
+}
+
+.lv-status {
+  padding: 0 6px;
+  border: 2px solid var(--lv);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--lv);
+}
+
+.lv-delta {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.lv-reason {
+  margin-top: 4px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--label);
+  opacity: .85;
+  overflow-wrap: anywhere;
+}
+
+/* ===== Mirrored ECG: same look as the watch ECG ===== */
+.lv-ecg-label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--label);
+  opacity: .85;
+}
+
+.lv-ecg {
+  padding: 2px 6px;
+  background: rgba(10, 6, 24, .6);
+}
+
+.lv-ecg svg {
+  display: block;
+  width: 100%;
+  height: auto;                        /* keeps the watch proportions (300 x 70) */
+}
+
+.lv-ecg .lv-base {
+  stroke: var(--label);
+  stroke-opacity: .55;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+/* Normal: white line with a soft glow, like the watch */
+.lv-ecg .lv-trace {
+  fill: none;
+  stroke: #f5e9ff;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(216, 180, 254, .9));
+  transition: stroke .3s;
+}
+
+/* Low, medium, high: the line takes the level color, like the watch */
+.lv-card[data-level="low"]    .lv-trace,
+.lv-card[data-level="medium"] .lv-trace,
+.lv-card[data-level="high"]   .lv-trace {
+  stroke: var(--lv);
+  filter: drop-shadow(0 0 4px var(--lv));
+}
+
+.lv-ecg .lv-tip {
+  fill: var(--lv);
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+/* Narrow Earth station: stack the readings above the ECG */
+@media (max-width: 1250px) {
+  .card.lv-card {
+    grid-template-columns: 1fr;
+  }
+}
