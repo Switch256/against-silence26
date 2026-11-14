@@ -378,6 +378,68 @@
         }
       }
     },
+    "/api/mission": {
+      "get": {
+        "tags": [
+          "mission"
+        ],
+        "summary": "Mission Overview",
+        "description": "Spacecraft, link, ground station, BPv7 node counters and the latest 40 events (newest first).",
+        "operationId": "mission_overview_api_mission_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events": {
+      "get": {
+        "tags": [
+          "mission"
+        ],
+        "summary": "List Events",
+        "description": "Events with id > since_id, oldest first. Poll with the last id you saw.",
+        "operationId": "list_events_api_events_get",
+        "parameters": [
+          {
+            "name": "since_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Since Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/stats": {
       "get": {
         "tags": [

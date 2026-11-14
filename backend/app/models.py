@@ -68,7 +68,7 @@ class Bundle(BaseModel):
     layer: Layer
     severity: Severity
     size_bytes: int
-    status: Literal["queued", "delivered"]
+    status: Literal["queued", "in_transit", "delivered"]
     created: datetime
 
 
@@ -78,4 +78,4 @@ class Reply(BaseModel):
     text: str
     author: str = "Earth medical team"
     created: datetime
-    status: Literal["queued", "delivered"] = "queued"
+    status: Literal["queued", "in_transit", "delivered"] = "queued"

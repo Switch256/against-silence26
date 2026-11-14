@@ -12,7 +12,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import db, medlink
+from . import db, events, medlink
 from .config import get_settings
 from .mission import Mission
 from .models import CheckIn, Reading
@@ -24,13 +24,16 @@ async def lifespan(app: FastAPI):
     settings = get_settings(getattr(app.state, "database_url", None))
     pool = db.open_pool(settings.database_url)
     app.state.mission = Mission(pool, settings)
+    app.state.mission.start()
     yield
+    app.state.mission.stop()
     pool.close()
 
 
 app = FastAPI(title="AEGIS-MEDLINK", version="0.1.0", lifespan=lifespan,
               description="Onboard health check (AEGIS) and delay-tolerant medical link (MEDLINK).")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000",
+                                                  "http://localhost:3001", "http://127.0.0.1:3001"],
                    allow_methods=["*"], allow_headers=["*"])
 app.mount("/proto", StaticFiles(directory=Path(__file__).parent / "static" / "proto", html=True), name="proto")
 
@@ -119,6 +122,7 @@ def spacecraft(readings: int = 120):
         "link": medlink.link(m.pool),
         "eta": m.eta(),
         "replies": medlink.replies(m.pool, "delivered"),
+        "transport": m.settings.transport,
     }
 
 
@@ -128,14 +132,14 @@ def spacecraft(readings: int = 120):
 def set_link(body: LinkChange):
     """Cut ('down') or restore ('up') the space link. Restoring flushes the outbox."""
     m = mission()
-    return {"sent": medlink.set_link(m.pool, m.earth, body.state), "link": medlink.link(m.pool)}
+    return {"sent": m.set_link(body.state), "link": medlink.link(m.pool)}
 
 
 @app.post("/api/link/window", tags=["link"])
 def link_window(body: Window):
     """A short contact: send what fits in budget_bytes, then the link drops again."""
     m = mission()
-    return {"sent": medlink.open_window(m.pool, m.earth, body.budget_bytes), "link": medlink.link(m.pool)}
+    return {"sent": m.open_window(body.budget_bytes), "link": medlink.link(m.pool)}
 
 
 # ---- Earth ----
@@ -150,8 +154,21 @@ def earth():
 @app.post("/api/earth/reply", tags=["earth"])
 def earth_reply(body: ReplyIn):
     """Doctor's reply. Delivered to the spacecraft when the link is up."""
-    m = mission()
-    return {"reply_id": medlink.reply(m.pool, m.earth, body.brief_id, body.text)}
+    return {"reply_id": mission().reply(body.brief_id, body.text)}
+
+
+# ---- mission (3D simulation) ----
+
+@app.get("/api/mission", tags=["mission"])
+def mission_overview():
+    """Spacecraft, link, ground station, BPv7 node counters and the latest 40 events (newest first)."""
+    return mission().overview()
+
+
+@app.get("/api/events", tags=["mission"])
+def list_events(since_id: int = 0):
+    """Events with id > since_id, oldest first. Poll with the last id you saw."""
+    return events.since(mission().pool, since_id)
 
 
 # ---- system ----

@@ -15,7 +15,24 @@ python run.py                 # migrates the database, serves http://127.0.0.1:8
 
 - `python run.py test` runs the backend tests.
 - `http://127.0.0.1:8001/proto/` is a plain HTML test page that already uses every endpoint. Copy from it freely.
-- CORS allows `http://localhost:3000`, so `next dev` can call the API directly.
+- CORS allows `http://localhost:3000`; the frontend below proxies through Next.js, so it does not depend on CORS.
+
+## Run the frontend (mission-control UI)
+
+```bash
+cd frontend
+npm install
+npm run dev                   # http://localhost:3001  (port 3000 is taken)
+```
+
+- Needs the backend on `http://127.0.0.1:8001`. Another URL: `NEXT_PUBLIC_API_URL=http://host:port npm run dev`
+  (see `.env.example`). The browser calls `/backend/*` on port 3001 and Next.js forwards it to the backend,
+  so CORS settings do not matter.
+- `npm run build` checks types and builds for production; `npm run start` serves the build on port 3001.
+- `?view=spacecraft` or `?view=earth` in the URL picks the opening camera (handy when presenting).
+- Code map: `hooks/useMission.ts` (one 1 s polling loop + actions), `lib/api.ts` (typed client),
+  `lib/store.ts` (snapshots -> packet animations, link state, mission log), `components/scene/*` (3D),
+  `components/hud/*` (overlay panels). Layout and camera presets: `lib/sceneLayout.ts`.
 
 ## Endpoints
 
@@ -27,6 +44,8 @@ python run.py                 # migrates the database, serves http://127.0.0.1:8
 | Astronaut | `POST /api/sim/step` | `{ "scenario": "normal" \| "spike" \| "exercise" \| "loose_watch" \| "low_oxygen", "count": 30 }` |
 | Earth | `GET /api/earth` | Received briefs (whatever layers have arrived) and replies. Poll every 1–2 s |
 | Earth | `POST /api/earth/reply` | `{ "brief_id": "pb-…", "text": "Rest 15 min, re-measure." }` |
+| Simulation | `GET /api/mission` | Mission time, spacecraft distance/light delay, link state, current DSN ground station, BPv7 node counters (`null` in local mode) and the last 40 events, newest first. Poll every 1–2 s |
+| Simulation | `GET /api/events?since_id=N` | Events with id > N, oldest first (each has `id`, `ts`, `kind`, `text`, `data`). Poll with the last id you saw |
 | Demo | `POST /api/link` | `{ "state": "down" }` cuts the link, `{ "state": "up" }` restores it |
 | Demo | `POST /api/link/window` | `{ "budget_bytes": 250 }`: a short contact, only the headline fits |
 | Demo | `GET /api/stats` | Bytes sent vs. raw readings, queue counts |

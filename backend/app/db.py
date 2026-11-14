@@ -2,7 +2,7 @@
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
-TABLES = ("readings", "alerts", "checkins", "bundles", "earth_inbox", "replies")
+TABLES = ("readings", "alerts", "checkins", "bundles", "earth_inbox", "replies", "events")
 
 
 def open_pool(database_url: str) -> ConnectionPool:

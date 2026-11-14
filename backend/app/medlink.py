@@ -2,14 +2,16 @@
 
 Bundles leave in priority order: every headline before any context, every context
 before any evidence; within a layer, urgent before review before routine, then oldest.
-The transport is pluggable: EarthInbox delivers in-process for the demo; a BPv7
-transport (dtn7-rs) can replace it without touching the queue logic.
+The transport is pluggable: EarthInbox delivers in-process (tests, quick demos);
+app.dtn.DtnTransport sends real BPv7 bundles through dtn7-rs nodes. Bundle status:
+queued -> in_transit (handed to the BPv7 node) -> delivered (seen arriving on the other side).
 """
 import uuid
 from typing import Protocol
 
 from psycopg_pool import ConnectionPool
 
+from . import events
 from .models import Severity
 from .pulsebrief import LAYER_RANK, BriefLayer
 
@@ -17,13 +19,33 @@ SEVERITY_RANK = {Severity.routine: 0, Severity.review: 1, Severity.urgent: 2}
 LINK_STATES = ("up", "down")
 
 
+def _sent_event(conn, bundle_id: str, layer: str, size: int) -> None:
+    events.add(conn, "bundle_sent", f"{layer.capitalize()} handed to the link ({size} B)",
+               layer=layer, bundle_id=bundle_id, size=size)
+
+
+def _delivered_event(conn, bundle_id: str, layer: str, size: int) -> None:
+    events.add(conn, "bundle_delivered", f"{layer.capitalize()} crossed the link ({size} B)",
+               layer=layer, bundle_id=bundle_id, size=size)
+
+
+def _reply_delivered_event(conn, reply_id: str, brief_id: str) -> None:
+    events.add(conn, "reply_delivered", "Earth reply reached the crew", reply_id=reply_id, brief_id=brief_id)
+
+
 class Transport(Protocol):
+    confirms_delivery: bool     # True: deliver() returning True means it arrived; False: arrival confirmed later
+
     def deliver(self, bundle_id: str, brief_id: str, layer: str, payload: bytes) -> bool:
-        """Hand one bundle to the other side; True once it is acknowledged."""
+        """Hand one PulseBrief layer towards Earth; False if it could not be handed over."""
+
+    def send_reply(self, reply_id: str, brief_id: str, text: str) -> bool:
+        """Hand one Earth reply towards the spacecraft."""
 
 
 class EarthInbox:
     """Earth side, in the same database. Duplicate deliveries are ignored."""
+    confirms_delivery = True
 
     def __init__(self, pool: ConnectionPool):
         self.pool = pool
@@ -34,6 +56,9 @@ class EarthInbox:
                 "INSERT INTO earth_inbox (bundle_id, brief_id, layer, payload) VALUES (%s, %s, %s, %s) "
                 "ON CONFLICT (bundle_id) DO NOTHING",
                 (bundle_id, brief_id, layer, payload.decode()))
+        return True
+
+    def send_reply(self, reply_id: str, brief_id: str, text: str) -> bool:
         return True
 
 
@@ -82,6 +107,7 @@ def set_link(pool: ConnectionPool, transport: Transport, state: str) -> list[str
         raise ValueError(f"link state must be one of {LINK_STATES}")
     with pool.connection() as conn:
         conn.execute("UPDATE link_state SET state = %s WHERE id = 1", (state,))
+        events.add(conn, f"link_{state}", "Link restored" if state == "up" else "Link lost")
     return flush(pool, transport) if state == "up" else []
 
 
@@ -100,6 +126,8 @@ def flush(pool: ConnectionPool, transport: Transport, budget_bytes: int | None =
         return []
     sent: list[str] = []
     left = budget_bytes
+    confirmed = transport.confirms_delivery
+    done = "delivered" if confirmed else "in_transit"
     with pool.connection() as conn, conn.transaction():
         rows = conn.execute(
             "SELECT bundle_id, brief_id, layer, payload, size_bytes FROM bundles WHERE status = 'queued' "
@@ -109,20 +137,27 @@ def flush(pool: ConnectionPool, transport: Transport, budget_bytes: int | None =
                 break                                   # keep strict priority order
             if not transport.deliver(row["bundle_id"], row["brief_id"], row["layer"], bytes(row["payload"])):
                 break
-            conn.execute("UPDATE bundles SET status = 'delivered', delivered_at = now() WHERE bundle_id = %s",
-                         (row["bundle_id"],))
+            conn.execute("UPDATE bundles SET status = %s, delivered_at = CASE WHEN %s THEN now() END "
+                         "WHERE bundle_id = %s", (done, confirmed, row["bundle_id"]))
             conn.execute("UPDATE link_state SET bytes_sent = bytes_sent + %s WHERE id = 1", (row["size_bytes"],))
+            _sent_event(conn, row["bundle_id"], row["layer"], row["size_bytes"])
+            if confirmed:
+                _delivered_event(conn, row["bundle_id"], row["layer"], row["size_bytes"])
             sent.append(row["bundle_id"])
             if left is not None:
                 left -= row["size_bytes"]
         replies = conn.execute(
-            "SELECT reply_id, length(text) AS size FROM replies WHERE status = 'queued' ORDER BY created "
-            "FOR UPDATE SKIP LOCKED").fetchall()
+            "SELECT reply_id, brief_id, text, length(text) AS size FROM replies WHERE status = 'queued' "
+            "ORDER BY created FOR UPDATE SKIP LOCKED").fetchall()
         for r in replies:
             if left is not None and r["size"] > left:
                 break
-            conn.execute("UPDATE replies SET status = 'delivered', delivered_at = now() WHERE reply_id = %s",
-                         (r["reply_id"],))
+            if not transport.send_reply(r["reply_id"], r["brief_id"], r["text"]):
+                break
+            conn.execute("UPDATE replies SET status = %s, delivered_at = CASE WHEN %s THEN now() END "
+                         "WHERE reply_id = %s", (done, confirmed, r["reply_id"]))
+            if confirmed:
+                _reply_delivered_event(conn, r["reply_id"], r["brief_id"])
             sent.append(r["reply_id"])
             if left is not None:
                 left -= r["size"]
@@ -149,6 +184,7 @@ def reply(pool: ConnectionPool, transport: Transport, brief_id: str, text: str,
     with pool.connection() as conn:
         conn.execute("INSERT INTO replies (reply_id, brief_id, text, author) VALUES (%s, %s, %s, %s)",
                      (reply_id, brief_id, text, author))
+        events.add(conn, "reply_queued", "Earth reply queued for the crew", reply_id=reply_id, brief_id=brief_id)
     flush(pool, transport)
     return reply_id
 
@@ -158,3 +194,32 @@ def replies(pool: ConnectionPool, status: str | None = None) -> list[dict]:
         return conn.execute(
             "SELECT reply_id, brief_id, text, author, created, status, delivered_at FROM replies "
             "WHERE %(s)s::text IS NULL OR status = %(s)s ORDER BY created DESC", {"s": status}).fetchall()
+
+
+# ---- delivery confirmations (used by asynchronous transports) ----
+
+def mark_delivered(pool: ConnectionPool, bundle_id: str) -> None:
+    with pool.connection() as conn:
+        row = conn.execute("UPDATE bundles SET status = 'delivered', delivered_at = now() "
+                           "WHERE bundle_id = %s AND status <> 'delivered' RETURNING layer, size_bytes",
+                           (bundle_id,)).fetchone()
+        if row:                                 # first arrival only; duplicates stay quiet
+            _delivered_event(conn, bundle_id, row["layer"], row["size_bytes"])
+
+
+def mark_reply_delivered(pool: ConnectionPool, reply_id: str) -> None:
+    with pool.connection() as conn:
+        row = conn.execute("UPDATE replies SET status = 'delivered', delivered_at = now() "
+                           "WHERE reply_id = %s AND status <> 'delivered' RETURNING brief_id",
+                           (reply_id,)).fetchone()
+        if row:
+            _reply_delivered_event(conn, reply_id, row["brief_id"])
+
+
+def undelivered(pool: ConnectionPool, ids: list[str]) -> list[str]:
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT bundle_id AS id FROM bundles WHERE bundle_id = ANY(%(ids)s) AND status <> 'delivered' "
+            "UNION ALL SELECT reply_id FROM replies WHERE reply_id = ANY(%(ids)s) AND status <> 'delivered'",
+            {"ids": ids}).fetchall()
+    return [r["id"] for r in rows]
