@@ -1,0 +1,35 @@
+/* Submission slides: seven 16:9 slides. Every size is a multiple of --u (1/1920 of the slide width),
+   so the deck looks the same on any screen and prints one slide per page (see @page). */
+.deck { --u: calc(100vw / 1920); background: #000; color: var(--color-fg); height: 100dvh; overflow-y: auto; scroll-snap-type: y mandatory; }
+.slide { position: relative; width: 100vw; height: calc(var(--u) * 1080); overflow: hidden; scroll-snap-align: start; background: var(--color-bg);
+  padding: calc(var(--u) * 96) calc(var(--u) * 120); display: flex; flex-direction: column; justify-content: center; break-after: page; }
+.slide:last-child { break-after: auto; }
+.slide h1 { font-size: calc(var(--u) * 132); font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.slide h2 { font-size: calc(var(--u) * 68); font-weight: 600; letter-spacing: -0.025em; line-height: 1.08; max-width: calc(var(--u) * 1400); }
+.slide p, .slide li { font-size: calc(var(--u) * 30); line-height: 1.42; color: var(--color-fg-2); }
+.slide .lead { font-size: calc(var(--u) * 38); line-height: 1.35; color: var(--color-fg-2); max-width: calc(var(--u) * 1300); margin-top: calc(var(--u) * 28); }
+.slide strong { color: var(--color-fg); font-weight: 600; }
+.slide .small { font-size: calc(var(--u) * 22); color: var(--color-fg-3); }
+.slide .num { position: absolute; right: calc(var(--u) * 120); bottom: calc(var(--u) * 56); font-size: calc(var(--u) * 20); color: var(--color-fg-4); font-variant-numeric: tabular-nums; }
+.slide .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.slide .over { position: relative; }
+.cols { display: grid; gap: calc(var(--u) * 28); margin-top: calc(var(--u) * 56); }
+.cols.c3 { grid-template-columns: repeat(3, 1fr); }
+.cols.c2 { grid-template-columns: repeat(2, 1fr); }
+.cols.c4 { grid-template-columns: repeat(4, 1fr); }
+.card { background: var(--color-surface); border-radius: calc(var(--u) * 22); padding: calc(var(--u) * 36); }
+.card h3 { font-size: calc(var(--u) * 36); font-weight: 600; color: var(--color-fg); margin-bottom: calc(var(--u) * 12); letter-spacing: -0.01em; }
+.card p { font-size: calc(var(--u) * 27); }
+.big { font-size: calc(var(--u) * 92); font-weight: 300; letter-spacing: -0.03em; line-height: 1; color: var(--color-fg); font-variant-numeric: tabular-nums; }
+.shot { width: 100%; border-radius: calc(var(--u) * 14); display: block; }
+.shots { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 28); margin-top: calc(var(--u) * 40); }
+.shots p { margin-top: calc(var(--u) * 16); font-size: calc(var(--u) * 26); }
+.grow { height: calc(var(--u) * 48); }
+.slide ul { margin-top: calc(var(--u) * 8); display: grid; gap: calc(var(--u) * 10); }
+.slide li { list-style: none; }
+.slide a { color: var(--color-accent-strong); }
+@page { size: 1920px 1080px; margin: 0; }
+@media print {
+  .deck { height: auto; overflow: visible; }
+  .slide { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
