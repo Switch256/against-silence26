@@ -11,6 +11,8 @@ Team Against the Silence · NASA Space Apps 2026 · Nov 1, 2026 · Asasira Marti
 
 > ✏️ This page is the team's living plan. To change it, [edit `docs/index.md` on GitHub](https://github.com/Switch256/against-silence26/edit/main/docs/index.md) and commit. Questions, ideas or problems: [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
 
+👉 **[Open the public mission-control demo](demo/)** — simulated data, no login required.
+
 ## Our story
 
 <div class="story" markdown="1">

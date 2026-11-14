@@ -11,7 +11,7 @@ import { FALLBACK_SPACECRAFT_NAME } from "@/lib/constants";
 import { SUN_DIR } from "@/lib/sceneLayout";
 import { servingStation, useStore } from "@/lib/store";
 import { CameraRig } from "./CameraRig";
-import { Earth } from "./Earth";
+import { Earth, EarthPlaceholder } from "./Earth";
 import { LinkBeam } from "./LinkBeam";
 import { Mars, Trajectory } from "./MarsAndTrajectory";
 import { Packets } from "./Packets";
@@ -38,7 +38,7 @@ function World() {
       </Environment>
 
       <Starfield />
-      <Suspense fallback={null}>
+      <Suspense fallback={<EarthPlaceholder />}>
         <Earth serving={serving} link={link} />
       </Suspense>
       <Mars />

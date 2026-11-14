@@ -6,6 +6,7 @@ import { useCallback, useEffect } from "react";
 import { api, ApiError, type Feeling, type Scenario } from "@/lib/api";
 import { MISSION_RETRY_MS, POLL_MS } from "@/lib/config";
 import { ingestSnapshot, resetTracker, useStore } from "@/lib/store";
+import { demoEarth, demoMission, demoSpacecraft, demoStats } from "@/lib/demo";
 
 let missionNextTry = 0;
 let requestSeq = 0;
@@ -30,7 +31,11 @@ async function pollOnce() {
     useStore.setState({ spacecraft, earth, stats, online: true, lastUpdate: Date.now() });
   } catch {
     // one slow poll is not an outage: flag offline after three misses in a row
-    if (++failures >= 3) useStore.setState({ online: false });
+    if (++failures >= 3) {
+      // The public showcase deliberately works without a backend or login.
+      ingestSnapshot(demoSpacecraft, demoEarth);
+      useStore.setState({ spacecraft: demoSpacecraft, earth: demoEarth, stats: demoStats, mission: demoMission, online: true, lastUpdate: Date.now() });
+    }
   } finally {
     window.clearTimeout(timer);
   }

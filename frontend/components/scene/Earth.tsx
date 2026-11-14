@@ -238,3 +238,13 @@ function StationBeacon({ id, name, active, link }: { id: StationId; name: string
     </group>
   );
 }
+
+/** Shown for the moment the Earth textures are still loading. */
+export function EarthPlaceholder() {
+  return (
+    <mesh>
+      <sphereGeometry args={[EARTH_R, 64, 32]} />
+      <meshStandardMaterial color="#1b3a66" roughness={0.9} metalness={0} />
+    </mesh>
+  );
+}

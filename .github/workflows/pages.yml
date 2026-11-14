@@ -1,0 +1,48 @@
+name: Publish docs and public demo
+
+on:
+  push:
+    branches: [martin]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build public frontend demo
+        working-directory: frontend
+        run: npm ci && npm run build
+      - uses: actions/jekyll-build-pages@v1
+        id: jekyll
+        with:
+          source: docs
+          destination: ./_site
+      - name: Add frontend demo to Pages artifact
+        run: cp -R frontend/out ./_site/demo
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

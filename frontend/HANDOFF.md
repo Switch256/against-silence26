@@ -25,6 +25,8 @@ npm install
 npm run dev                   # http://localhost:3001  (port 3000 is taken)
 ```
 
+The app has a public demo fallback: if the backend is unavailable, it shows clearly labelled simulated astronaut data and remains usable without authentication. A configured backend is used automatically when reachable.
+
 - Needs the backend on `http://127.0.0.1:8001`. Another URL: `NEXT_PUBLIC_API_URL=http://host:port npm run dev`
   (see `.env.example`). The browser calls `/backend/*` on port 3001 and Next.js forwards it to the backend,
   so CORS settings do not matter.
