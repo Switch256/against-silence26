@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEGIS-MEDLINK Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <strong>AEGIS-MEDLINK</strong> <span class="muted">backend prototype · simulated data</span>
+    <span class="spacer"></span>
+    <a href="/docs" target="_blank">API docs</a>
+    <button id="reset" class="ghost">Reset demo</button>
+  </header>
+
+  <main>
+    <!-- Spacecraft -->
+    <section class="panel">
+      <h2>🚀 Spacecraft</h2>
+      <div class="vitals">
+        <div><small>Heart rate</small><b id="hr">–</b><small>bpm</small></div>
+        <div><small>Oxygen</small><b id="spo2">–</b><small>%</small></div>
+        <div><small>Activity</small><b id="activity" class="word">–</b><small id="quality">signal –</small></div>
+      </div>
+      <svg id="chart" viewBox="0 0 300 70" preserveAspectRatio="none"><polyline id="line" fill="none"/></svg>
+
+      <h3>Simulator</h3>
+      <div class="buttons">
+        <button data-sim="normal" data-count="30">Normal ×30</button>
+        <button data-sim="spike" data-count="30">Heart-rate spike ×30</button>
+        <button data-sim="exercise" data-count="10">Exercise ×10</button>
+        <button data-sim="loose_watch" data-count="10">Loose watch ×10</button>
+        <button data-sim="low_oxygen" data-count="3">Low oxygen ×3</button>
+      </div>
+      <p class="muted small">Run "Normal" first so AEGIS has a baseline (20+ readings).</p>
+
+      <h3>Latest alert</h3>
+      <div id="alert" class="card muted">No alerts yet.</div>
+
+      <h3>How do you feel?</h3>
+      <div class="buttons">
+        <button data-feel="fine">Fine</button>
+        <button data-feel="a_bit_off">A bit off</button>
+        <button data-feel="unwell">Unwell</button>
+        <input id="symptom" placeholder="symptom (optional)" maxlength="60">
+      </div>
+
+      <div class="eta">
+        <div><small>Earth sees it in</small><b id="eta-see">–</b></div>
+        <div><small>Earliest reply in</small><b id="eta-reply">–</b></div>
+      </div>
+
+      <h3>Replies from Earth</h3>
+      <ul id="replies" class="list"><li class="muted">None yet.</li></ul>
+    </section>
+
+    <!-- Link -->
+    <section class="panel narrow">
+      <h2>📡 Link</h2>
+      <p>State: <span id="link" class="badge">–</span></p>
+      <div class="buttons col">
+        <button data-link="down" class="danger">Cut link</button>
+        <button data-window="250" class="warn">Short window (250 B)</button>
+        <button data-link="up" class="ok">Restore link</button>
+      </div>
+      <h3>MEDLINK outbox</h3>
+      <ul id="outbox" class="list"></ul>
+      <h3>Numbers</h3>
+      <dl id="stats" class="stats"></dl>
+    </section>
+
+    <!-- Earth -->
+    <section class="panel">
+      <h2>🌍 Earth medical console</h2>
+      <div id="briefs"><p class="muted">Nothing received yet.</p></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

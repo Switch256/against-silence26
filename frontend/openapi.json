@@ -1,0 +1,671 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AEGIS-MEDLINK",
+    "description": "Onboard health check (AEGIS) and delay-tolerant medical link (MEDLINK).",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/readings": {
+      "post": {
+        "tags": [
+          "spacecraft"
+        ],
+        "summary": "Post Reading",
+        "description": "Ingest one reading (simulator, NASA scenario or wearable). Returns any alert raised.",
+        "operationId": "post_reading_api_readings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reading"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sim/step": {
+      "post": {
+        "tags": [
+          "spacecraft"
+        ],
+        "summary": "Sim Step",
+        "description": "Generate simulated readings and ingest them. Use scenario 'spike' to trigger an alert.",
+        "operationId": "sim_step_api_sim_step_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimStep"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/checkin": {
+      "post": {
+        "tags": [
+          "spacecraft"
+        ],
+        "summary": "Post Checkin",
+        "description": "3-tap check-in: fine / a_bit_off / unwell, plus an optional symptom.",
+        "operationId": "post_checkin_api_checkin_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/alerts/{alert_id}/done": {
+      "post": {
+        "tags": [
+          "spacecraft"
+        ],
+        "summary": "Post Done",
+        "description": "Tick off a 'what to do now' step.",
+        "operationId": "post_done_api_alerts__alert_id__done_post",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Alert Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DoneStep"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/spacecraft": {
+      "get": {
+        "tags": [
+          "spacecraft"
+        ],
+        "summary": "Spacecraft",
+        "description": "Everything the astronaut dashboard shows, in one call (poll every 1-2 s).",
+        "operationId": "spacecraft_api_spacecraft_get",
+        "parameters": [
+          {
+            "name": "readings",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 120,
+              "title": "Readings"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/link": {
+      "post": {
+        "tags": [
+          "link"
+        ],
+        "summary": "Set Link",
+        "description": "Cut ('down') or restore ('up') the space link. Restoring flushes the outbox.",
+        "operationId": "set_link_api_link_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkChange"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/link/window": {
+      "post": {
+        "tags": [
+          "link"
+        ],
+        "summary": "Link Window",
+        "description": "A short contact: send what fits in budget_bytes, then the link drops again.",
+        "operationId": "link_window_api_link_window_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Window"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/earth": {
+      "get": {
+        "tags": [
+          "earth"
+        ],
+        "summary": "Earth",
+        "description": "Everything the Earth console shows: received briefs (any layers so far) and replies.",
+        "operationId": "earth_api_earth_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/earth/reply": {
+      "post": {
+        "tags": [
+          "earth"
+        ],
+        "summary": "Earth Reply",
+        "description": "Doctor's reply. Delivered to the spacecraft when the link is up.",
+        "operationId": "earth_reply_api_earth_reply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Stats",
+        "description": "Bytes sent over the link vs. the raw readings, queue counts.",
+        "operationId": "stats_api_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reset": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Reset",
+        "description": "Empty all tables for a fresh demo run.",
+        "operationId": "reset_api_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Activity": {
+        "type": "string",
+        "enum": [
+          "rest",
+          "exercise",
+          "sleep"
+        ],
+        "title": "Activity"
+      },
+      "CheckIn": {
+        "properties": {
+          "astronaut_id": {
+            "type": "string",
+            "title": "Astronaut Id",
+            "default": "crew-01"
+          },
+          "feeling": {
+            "type": "string",
+            "enum": [
+              "fine",
+              "a_bit_off",
+              "unwell"
+            ],
+            "title": "Feeling"
+          },
+          "symptom": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symptom"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feeling"
+        ],
+        "title": "CheckIn"
+      },
+      "DoneStep": {
+        "properties": {
+          "step": {
+            "type": "string",
+            "title": "Step"
+          }
+        },
+        "type": "object",
+        "required": [
+          "step"
+        ],
+        "title": "DoneStep"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LinkChange": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ],
+            "title": "State"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "title": "LinkChange"
+      },
+      "Reading": {
+        "properties": {
+          "astronaut_id": {
+            "type": "string",
+            "title": "Astronaut Id",
+            "default": "crew-01"
+          },
+          "ts": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ts"
+          },
+          "heart_rate": {
+            "type": "number",
+            "exclusiveMaximum": 300.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Heart Rate",
+            "description": "beats per minute"
+          },
+          "spo2": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 50.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spo2",
+            "description": "blood oxygen, %"
+          },
+          "activity": {
+            "$ref": "#/components/schemas/Activity",
+            "default": "rest"
+          },
+          "signal_quality": {
+            "$ref": "#/components/schemas/SignalQuality",
+            "default": "good"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "simulator",
+              "nasa-scenario",
+              "ble"
+            ],
+            "title": "Source",
+            "default": "simulator"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ts",
+          "heart_rate"
+        ],
+        "title": "Reading"
+      },
+      "ReplyIn": {
+        "properties": {
+          "brief_id": {
+            "type": "string",
+            "title": "Brief Id"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brief_id",
+          "text"
+        ],
+        "title": "ReplyIn"
+      },
+      "SignalQuality": {
+        "type": "string",
+        "enum": [
+          "good",
+          "poor"
+        ],
+        "title": "SignalQuality"
+      },
+      "SimStep": {
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "spike",
+              "exercise",
+              "loose_watch",
+              "low_oxygen"
+            ],
+            "title": "Scenario",
+            "default": "normal"
+          },
+          "count": {
+            "type": "integer",
+            "maximum": 600.0,
+            "minimum": 1.0,
+            "title": "Count",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "title": "SimStep"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Window": {
+        "properties": {
+          "budget_bytes": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 1.0,
+            "title": "Budget Bytes",
+            "default": 250
+          }
+        },
+        "type": "object",
+        "title": "Window"
+      }
+    }
+  }
+}
