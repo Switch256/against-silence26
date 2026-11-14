@@ -1,297 +1,275 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens.
+ * Surfaces, type scale and label style follow NASA JPL's Stellar design system
+ * (dark gray ramp #1b1d1e..#545f64, Inter, 12px sentence-case labels, 11px small caps
+ * used sparingly). Colour is reserved for meaning (NASA-STD-3001 Vol 2, Appendix F):
+ *   nominal = green, caution = amber, warning = red, one cool accent for selection and the link.
+ */
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, SFMono-Regular, monospace;
 
-  --color-space: #010309;
-  --color-ink: #e6f1ff;
-  --color-dim: #8aa0bd;
-  --color-faint: #4f6582;
-  --color-link: #38e1ff;
-  --color-lost: #ff3b4f;
-  --color-amber: #ffb020;
-  --color-headline: #ff3b4f;
-  --color-context: #ff8a1f;
-  --color-evidence: #3d8bff;
-  --color-reply: #2fe39a;
+  /* surfaces (Stellar gray ramp, one step darker for the app background) */
+  --color-bg: #0e1011;
+  --color-surface: #16191a;
+  --color-raised: #1d2123;
+  --color-sunken: #111314;
+  --color-line: #262d31;
+  --color-line-strong: #3a4246;
+
+  /* text */
+  --color-fg: #e8eaeb;
+  --color-fg-2: #b4b9bc;
+  --color-fg-3: #858c90;
+  --color-fg-4: #5c6468;
+
+  /* the one cool accent (selection, the space link, primary actions) */
+  --color-accent: #6aa8f0;
+  --color-accent-strong: #8dbdf5;
+
+  /* status, meaning only */
+  --color-nominal: #3fbf7f;
+  --color-caution: #f0b429;
+  --color-warning: #ff6b5b;
 }
 
 :root {
   color-scheme: dark;
-  --glass: rgba(7, 13, 26, 0.58);
-  --glass-strong: rgba(7, 13, 26, 0.78);
-  --edge: rgba(130, 200, 255, 0.13);
-  --edge-strong: rgba(130, 200, 255, 0.28);
 }
 
 html,
 body {
   height: 100%;
-  background: #010309;
-  color: var(--color-ink);
-  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-fg);
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01";
 }
 
 @layer components {
-/* ---------- glass panels ---------- */
-.glass {
-  position: relative;
-  background: linear-gradient(180deg, rgba(14, 24, 44, 0.62), rgba(5, 10, 21, 0.62));
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid var(--edge);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px -20px rgba(0, 0, 0, 0.8);
-}
-/* mission-control corner ticks */
-.glass::before,
-.glass::after {
-  content: "";
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: rgba(120, 220, 255, 0.55);
-  pointer-events: none;
-}
-.glass::before {
-  top: -1px;
-  left: -1px;
-  border-top: 1px solid;
-  border-left: 1px solid;
-  border-top-left-radius: 14px;
-}
-.glass::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 1px solid;
-  border-right: 1px solid;
-  border-bottom-right-radius: 14px;
-}
+  /* A console panel: flat surface, hairline border, no blur, no glow. */
+  .panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 40px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-fg);
+    letter-spacing: 0;
+  }
 
-.label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-dim);
-}
+  /* Stellar "small caps": section labels only, never paragraphs. */
+  .caps {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-3);
+  }
+  /* Stellar "label": 12px sentence case. */
+  .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg-3);
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
 
-.scroll-thin {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(130, 200, 255, 0.2) transparent;
-}
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #3a4246 transparent;
+  }
 
-/* ---------- buttons ---------- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 10px;
-  border: 1px solid var(--edge);
-  background: rgba(18, 30, 54, 0.55);
-  color: var(--color-ink);
-  font-size: 12.5px;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: background 0.2s, border-color 0.2s, transform 0.1s, box-shadow 0.2s;
-}
-.btn:hover {
-  background: rgba(30, 50, 86, 0.7);
-  border-color: var(--edge-strong);
-}
-.btn:active {
-  transform: translateY(1px);
-}
-.btn:disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-.btn-mult {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--color-dim);
-}
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 4px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-raised);
+    color: var(--color-fg);
+    font-size: 12.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  .btn:hover {
+    background: #252a2d;
+    border-color: #4c565b;
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .btn-primary {
+    background: #2a4a70;
+    border-color: #3c6797;
+  }
+  .btn-primary:hover {
+    background: #325780;
+    border-color: #4a7aae;
+  }
+  .btn-quiet {
+    background: transparent;
+    border-color: transparent;
+    color: var(--color-fg-2);
+  }
+  .btn-quiet:hover {
+    background: var(--color-raised);
+    border-color: var(--color-line);
+  }
 
-/* ---------- 3D scene labels (drei <Html>) ---------- */
-.scene-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: #cfe9ff;
-  background: rgba(4, 10, 22, 0.55);
-  border: 1px solid rgba(130, 200, 255, 0.2);
-  backdrop-filter: blur(6px);
-  transition: opacity 0.4s;
-}
-.scene-label__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 8px currentColor;
-}
-.scene-label--dim {
-  color: #7f97b5;
-  font-size: 9px;
-  padding: 2px 6px;
-  background: rgba(4, 10, 22, 0.35);
-}
-.scene-label--active[data-state="up"] {
-  color: #38e1ff;
-  border-color: rgba(56, 225, 255, 0.5);
-}
-.scene-label--active[data-state="down"] {
-  color: #ff5b6c;
-  border-color: rgba(255, 59, 79, 0.5);
-}
-.scene-label--active[data-state="window"] {
-  color: #ffb020;
-  border-color: rgba(255, 176, 32, 0.5);
-}
-.scene-label--craft {
-  color: #e6f1ff;
-}
-.scene-label--mars {
-  color: #ffb08a;
-  border-color: rgba(255, 140, 90, 0.25);
-}
+  /* Segmented control (camera presets) */
+  .seg {
+    display: inline-flex;
+    padding: 2px;
+    gap: 2px;
+    border-radius: 5px;
+    background: rgba(14, 16, 17, 0.82);
+    border: 1px solid var(--color-line);
+  }
+  .seg button {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg-3);
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .seg button:hover {
+    color: var(--color-fg);
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--color-raised);
+    color: var(--color-fg);
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+  }
 
-.beam-flag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  white-space: nowrap;
-}
-.beam-flag__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 10px currentColor;
-  animation: blink 1s steps(2, start) infinite;
-}
-.beam-flag--down {
-  color: #ff5b6c;
-  background: rgba(40, 4, 10, 0.7);
-  border: 1px solid rgba(255, 59, 79, 0.55);
-  box-shadow: 0 0 30px rgba(255, 40, 60, 0.25);
-}
-.beam-flag--window {
-  color: #ffc04a;
-  background: rgba(40, 24, 0, 0.7);
-  border: 1px solid rgba(255, 176, 32, 0.6);
-  box-shadow: 0 0 30px rgba(255, 176, 32, 0.25);
-}
+  /* Small bordered tag (provenance, transport) */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 3px;
+    border: 1px solid var(--color-line-strong);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-fg-3);
+    white-space: nowrap;
+  }
 
-.outbox-flag {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: #ffd2b0;
-  background: rgba(30, 10, 6, 0.6);
-  border: 1px solid rgba(255, 138, 31, 0.4);
-  backdrop-filter: blur(6px);
-}
-.outbox-flag b {
-  color: #fff;
-  font-size: 13px;
-  margin-right: 2px;
-}
-.outbox-flag span {
-  font-size: 8.5px;
-  letter-spacing: 0.14em;
-  color: #b5917a;
-}
-.outbox-flag--reply {
-  color: #aef5d4;
-  background: rgba(4, 28, 18, 0.6);
-  border-color: rgba(47, 227, 154, 0.4);
-}
-.outbox-flag--reply span {
-  color: #7fb39c;
-}
-
-}
-
-/* ---------- motion ---------- */
-@keyframes blink {
-  to {
-    visibility: hidden;
+  /* Labels drawn inside the 3D viewport (drei <Html>) */
+  .scene-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-fg-2);
+    background: rgba(14, 16, 17, 0.72);
+    border: 1px solid rgba(58, 66, 70, 0.9);
+    transition: opacity 0.3s;
+  }
+  .scene-label b {
+    color: var(--color-fg);
+    font-weight: 600;
+  }
+  .scene-label--plain {
+    background: none;
+    border-color: transparent;
+    color: var(--color-fg-3);
+  }
+  .scene-callout {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 5px 9px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    color: var(--color-fg-2);
+    background: rgba(14, 16, 17, 0.86);
+    border: 1px solid var(--color-line-strong);
+  }
+  .scene-callout strong {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg);
   }
 }
-@keyframes pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 var(--pulse, rgba(255, 59, 79, 0.6));
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
-}
-.pulse-ring {
-  animation: pulse-ring 1.4s ease-out infinite;
-}
-@keyframes rise-in {
+
+/* Motion: only for state changes (new alert, packet arrival, link change). */
+@keyframes enter {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
     transform: none;
   }
 }
-.rise-in {
-  animation: rise-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+.enter {
+  animation: enter 0.35s ease-out both;
 }
-@keyframes sweep {
+@keyframes flash-bg {
   from {
-    transform: translateX(-100%);
+    background-color: rgba(106, 168, 240, 0.16);
   }
   to {
-    transform: translateX(100%);
+    background-color: transparent;
   }
 }
-@keyframes glow-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 1;
-  }
+.flash {
+  animation: flash-bg 1.6s ease-out both;
 }
-.glow-pulse {
-  animation: glow-pulse 1.6s ease-in-out infinite;
+@media (prefers-reduced-motion: reduce) {
+  .enter,
+  .flash {
+    animation: none;
+  }
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #5d7392;
+  color: var(--color-fg-4);
 }
+
+/* Log roll: each event rises from the bottom, holds, then rises out of view (newest first, cycling). */
+@keyframes roll-in { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes roll-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-100%); opacity: 0; } }
+.roll-in { animation: roll-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.roll-out { animation: roll-out 0.45s cubic-bezier(0.4, 0, 0.6, 1) both; }
+/* feed cards rise in from below */
+@keyframes rise { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.rise { animation: rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .roll-in, .roll-out, .rise { animation: none; } }

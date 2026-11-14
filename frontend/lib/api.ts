@@ -41,7 +41,11 @@ export interface Bundle {
   severity: Severity;
   size_bytes: number;
   status: BundleStatus;
+  /** when AEGIS queued the bundle on board */
   created?: string;
+  /** handed to the BPv7 node (left the outbox) */
+  sent_at?: string | null;
+  /** seen arriving on Earth */
   delivered_at?: string | null;
 }
 
@@ -52,6 +56,7 @@ export interface Reply {
   author: string;
   created?: string;
   status?: BundleStatus;
+  sent_at?: string | null;
   delivered_at?: string | null;
 }
 
@@ -69,16 +74,29 @@ export interface SpacecraftState {
   alerts?: Alert[];
   checkin: CheckIn | null;
   outbox: Bundle[];
-  link: { state: "up" | "down"; bytes_sent: number };
+  link: { state: "up" | "down" | "window"; bytes_sent: number; window_until?: string | null };
   eta: Eta;
   replies: Reply[];
   transport?: string;
 }
 
+export type SpaceWeatherLevel = "nominal" | "info" | "caution" | "warning";
+export interface SpaceWeatherEvent {
+  event_id: string; kind: "SEP" | "CME" | "GST" | "RBE" | string; start_time: string;
+  severity: string; summary: string; link?: string | null; origin?: string;
+}
+/** GET /api/space-weather: NASA DONKI (real data, live or the May 2024 replay). */
+export interface SpaceWeather {
+  level: SpaceWeatherLevel; headline: string; active: SpaceWeatherEvent[]; recent: SpaceWeatherEvent[];
+  todo: string[]; source: string; note?: string; mode: "live" | "replay"; as_of?: string;
+}
+export interface SpaceWeatherBrief { level?: SpaceWeatherLevel; headline?: string; source?: string; mode?: "live" | "replay" }
+
 export interface Headline { a?: string; m?: string; val?: number; base?: number; sev?: Severity; sq?: string; id?: string }
 export interface Context {
   reason?: string; activity?: string; spo2?: number | null;
-  checkin?: CheckIn | null; done?: string[]; simulated?: boolean;
+  checkin?: CheckIn | null; done?: string[]; todo?: string[]; simulated?: boolean;
+  space_weather?: SpaceWeatherBrief | null;
 }
 export interface Evidence { unit?: string; hr?: [number, number][] }
 
@@ -104,16 +122,26 @@ export interface Stats {
   raw_bytes_equivalent: number;
 }
 
-export interface MissionEvent { ts: string; kind: string; text: string }
+export interface MissionEvent {
+  id?: number;
+  ts: string;
+  kind: string;
+  text: string;
+  data?: { brief_id?: string; bundle_id?: string; reply_id?: string; [k: string]: unknown } | null;
+}
+
+/** BPv7 node counters as reported by dtn7-rs (null in local mode). */
+export interface NodeCounters { incoming?: number; outgoing?: number; delivered?: number; failed?: number; dups?: number; broken?: number }
 
 /** GET /api/mission (optional: newer backends only). */
 export interface MissionState {
   mission_time_s?: number;
   spacecraft?: { name?: string; distance_km?: number; light_delay_s?: number; phase?: string };
-  link?: { state?: string };
+  link?: { state?: string; window_until?: string | null };
   ground_station?: { name?: string; lat?: number; lon?: number };
-  bpv7?: Record<string, Record<string, unknown>> | null;
+  bpv7?: { spacecraft?: NodeCounters | null; earth?: NodeCounters | null; reachable?: boolean } | null;
   events?: MissionEvent[];
+  space_weather?: SpaceWeatherBrief | null;
 }
 
 export class ApiError extends Error {
@@ -139,13 +167,15 @@ export const api = {
   earth: (s?: AbortSignal) => request<EarthState>("/api/earth", undefined, s),
   stats: (s?: AbortSignal) => request<Stats>("/api/stats", undefined, s),
   mission: (s?: AbortSignal) => request<MissionState>("/api/mission", undefined, s),
+  spaceWeather: (s?: AbortSignal) => request<SpaceWeather>("/api/space-weather", undefined, s),
+  spaceWeatherReplay: (scenario: "may-2024" | "live") => request("/api/space-weather/replay", { scenario }),
 
-  simStep: (scenario: Scenario, count: number) => request("/api/sim/step", { scenario, count }),
+  simStep: (scenario: Scenario, count: number, force = false) => request("/api/sim/step", { scenario, count, force }),
   checkin: (feeling: Feeling, symptom: string | null) => request("/api/checkin", { feeling, symptom }),
   markDone: (alertId: string, step: string) =>
     request(`/api/alerts/${encodeURIComponent(alertId)}/done`, { step }),
   setLink: (state: "up" | "down") => request("/api/link", { state }),
-  openWindow: (budget_bytes = 250) => request("/api/link/window", { budget_bytes }),
+  openWindow: (budget_bytes = 250, duration_s = 8) => request("/api/link/window", { budget_bytes, duration_s }),
   reply: (brief_id: string, text: string) => request("/api/earth/reply", { brief_id, text }),
   reset: () => request("/api/reset", {}),
 };

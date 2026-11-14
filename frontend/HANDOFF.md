@@ -32,9 +32,16 @@ The app has a public demo fallback: if the backend is unavailable, it shows clea
   so CORS settings do not matter.
 - `npm run build` checks types and builds for production; `npm run start` serves the build on port 3001.
 - `?view=spacecraft` or `?view=earth` in the URL picks the opening camera (handy when presenting).
-- Code map: `hooks/useMission.ts` (one 1 s polling loop + actions), `lib/api.ts` (typed client),
-  `lib/store.ts` (snapshots -> packet animations, link state, mission log), `components/scene/*` (3D),
-  `components/hud/*` (overlay panels). Layout and camera presets: `lib/sceneLayout.ts`.
+- Code map (frontend):
+  - `hooks/useMission.ts`: one 1 s polling loop (+ `/api/mission`, `/api/space-weather`) and every demo action.
+  - `lib/api.ts` typed client · `lib/store.ts` snapshots, packet flights (timed from `sent_at`/`delivered_at`), UI state
+    · `lib/notifications.ts` new events -> toasts + unread counter · `lib/sceneLayout.ts` 3D layout and camera presets.
+  - `components/layout/` page shell (`Console`, `TopBar`, `LogDrawer`) · `components/crew/` spacecraft console
+    · `components/earth/` Earth medical console (brief list, lifecycle timeline, evidence chart, reply)
+    · `components/viewport/` 3D frame, toasts, log ticker, DSN inset · `components/scene/` three.js scene (NASA models)
+    · `components/demo/` Mission Scenario Controller (overlay, `D` key) · `components/ui/` panel, status, icons.
+  - Design tokens live in `app/globals.css` (`@theme`) and `lib/constants.ts` (`COLORS`, `SEVERITY`). Colour is only
+    for meaning: nominal green, caution amber, warning red, one cool accent.
 
 ## Endpoints
 
@@ -43,13 +50,13 @@ The app has a public demo fallback: if the backend is unavailable, it shows clea
 | Astronaut | `GET /api/spacecraft` | **Everything the astronaut dashboard needs in one call.** Poll every 1–2 s |
 | Astronaut | `POST /api/checkin` | `{ "feeling": "fine" \| "a_bit_off" \| "unwell", "symptom": "dizzy" }` |
 | Astronaut | `POST /api/alerts/{alert_id}/done` | `{ "step": "Drink water" }`: tick a "what to do now" step |
-| Astronaut | `POST /api/sim/step` | `{ "scenario": "normal" \| "spike" \| "exercise" \| "loose_watch" \| "low_oxygen", "count": 30 }` |
+| Astronaut | `POST /api/sim/step` | `{ "scenario": "normal" \| "spike" \| "exercise" \| "loose_watch" \| "low_oxygen", "count": 30, "force": false }`. `force: true` guarantees an alert even during the 60 s cooldown (use on stage) |
 | Earth | `GET /api/earth` | Received briefs (whatever layers have arrived) and replies. Poll every 1–2 s |
 | Earth | `POST /api/earth/reply` | `{ "brief_id": "pb-…", "text": "Rest 15 min, re-measure." }` |
 | Simulation | `GET /api/mission` | Mission time, spacecraft distance/light delay, link state, current DSN ground station, BPv7 node counters (`null` in local mode) and the last 40 events, newest first. Poll every 1–2 s |
 | Simulation | `GET /api/events?since_id=N` | Events with id > N, oldest first (each has `id`, `ts`, `kind`, `text`, `data`). Poll with the last id you saw |
 | Demo | `POST /api/link` | `{ "state": "down" }` cuts the link, `{ "state": "up" }` restores it |
-| Demo | `POST /api/link/window` | `{ "budget_bytes": 250 }`: a short contact, only the headline fits |
+| Demo | `POST /api/link/window` | `{ "budget_bytes": 250, "duration_s": 8 }`: a short contact, only the headline fits. `link.state` is `"window"` until `link.window_until`, then `"down"` |
 | Demo | `GET /api/stats` | Bytes sent vs. raw readings, queue counts |
 | Demo | `POST /api/reset` | Empty everything for a fresh run |
 
@@ -84,7 +91,7 @@ The app has a public demo fallback: if the backend is unavailable, it shows clea
     "evidence": { "unit": "bpm", "hr": [[-60, 72], [-59, 73], [0, 89]] } } }
 ```
 
-Layers arrive one at a time: **always check which keys exist** in `layers`. `evidence.hr` is `[seconds from the event, bpm]`, ready to chart.
+Layers arrive one at a time: **always check which keys exist** in `layers`. Each outbox item has `sent_at` (handed to the BPv7 node) and `delivered_at` (seen arriving on Earth); time packet flights from these. `evidence.hr` is `[seconds from the event, bpm]`, ready to chart.
 
 ## Checklist before pushing (frontend)
 

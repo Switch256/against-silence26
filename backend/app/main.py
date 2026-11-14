@@ -45,6 +45,7 @@ def mission() -> Mission:
 class SimStep(BaseModel):
     scenario: Literal[SCENARIOS] = "normal"          # type: ignore[valid-type]
     count: int = Field(default=1, ge=1, le=600)
+    force: bool = Field(default=False, description="guarantee an alert even if cooldown/baseline would suppress it")
 
 
 class LinkChange(BaseModel):
@@ -53,6 +54,7 @@ class LinkChange(BaseModel):
 
 class Window(BaseModel):
     budget_bytes: int = Field(default=250, ge=1, le=100_000)
+    duration_s: float = Field(default=8, ge=1, le=60, description="how long the link shows 'window' before dropping")
 
 
 class DoneStep(BaseModel):
@@ -84,11 +86,10 @@ def post_reading(reading: Reading):
 
 @app.post("/api/sim/step", tags=["spacecraft"])
 def sim_step(body: SimStep):
-    """Generate simulated readings and ingest them. Use scenario 'spike' to trigger an alert."""
-    m = mission()
-    results = [m.ingest(m.sim.next(body.scenario)) for _ in range(body.count)]
+    """Generate simulated readings and ingest them. 'spike' raises an alert; force=true guarantees one."""
+    results = mission().simulate(body.scenario, body.count, body.force)
     alerts = [r["alert"] for r in results if r["alert"]]
-    return {"generated": body.count, "alerts": alerts, "last_reading": results[-1]["reading"]}
+    return {"generated": len(results), "alerts": alerts, "last_reading": results[-1]["reading"]}
 
 
 @app.post("/api/checkin", tags=["spacecraft"])
@@ -137,9 +138,9 @@ def set_link(body: LinkChange):
 
 @app.post("/api/link/window", tags=["link"])
 def link_window(body: Window):
-    """A short contact: send what fits in budget_bytes, then the link drops again."""
+    """A short contact: send what fits in budget_bytes; link shows 'window' for duration_s, then drops."""
     m = mission()
-    return {"sent": m.open_window(body.budget_bytes), "link": medlink.link(m.pool)}
+    return {"sent": m.open_window(body.budget_bytes, body.duration_s), "link": medlink.link(m.pool)}
 
 
 # ---- Earth ----
@@ -173,6 +174,53 @@ def list_events(since_id: int = 0):
 
 # ---- system ----
 
+class LiveControl(BaseModel):
+    running: bool | None = None
+    scenario: Literal[SCENARIOS] | None = None       # type: ignore[valid-type]
+
+
+@app.get("/api/sim/live", tags=["spacecraft"])
+def live_state():
+    """Live telemetry stream: one simulated reading per second (LIVE_SIM=1)."""
+    m = mission()
+    return m.live.state() if m.live else {"running": False, "scenario": None, "until": None, "interval_s": None}
+
+
+@app.post("/api/sim/live", tags=["spacecraft"])
+def live_control(body: LiveControl):
+    """Pause/resume the live stream, or switch the scenario it streams (held for 45 s, then normal)."""
+    m = mission()
+    if not m.live:
+        raise HTTPException(409, "live telemetry is off (set LIVE_SIM=1 in backend/.env)")
+    if body.running is not None:
+        (m.live.running.set if body.running else m.live.running.clear)()
+    if body.scenario:
+        m.live.hold(body.scenario)
+    return m.live.state()
+
+
+class Replay(BaseModel):
+    scenario: Literal["may-2024", "live"]
+
+
+@app.get("/api/space-weather", tags=["space weather"])
+def space_weather():
+    """Crew space-weather environment from NASA DONKI: level, headline, active and recent events."""
+    return mission().space_weather()
+
+
+@app.post("/api/space-weather/refresh", tags=["space weather"])
+def space_weather_refresh():
+    """Fetch the last 30 days from NASA DONKI (needs network; NASA_API_KEY raises the rate limit)."""
+    return mission().refresh_space_weather()
+
+
+@app.post("/api/space-weather/replay", tags=["space weather"])
+def space_weather_replay(body: Replay):
+    """Replay a real past DONKI event as if it were happening now (raises an AEGIS alert), or go back to live."""
+    return mission().replay_space_weather(body.scenario)
+
+
 @app.get("/api/stats", tags=["system"])
 def stats():
     """Bytes sent over the link vs. the raw readings, queue counts."""
@@ -183,4 +231,5 @@ def stats():
 def reset():
     """Empty all tables for a fresh demo run."""
     db.reset(mission().pool)
+    mission().space_weather_as_of = None            # NASA DONKI data itself is kept across resets
     return {"ok": True}

@@ -41,7 +41,7 @@ def test_short_window_lets_only_the_headline_through(db):
     medlink.enqueue(db, layers, sev)
     sent = medlink.open_window(db, inbox, budget_bytes=250)
     assert [s.split(":")[1] for s in sent] == ["headline"]
-    assert medlink.link(db)["state"] == "down"
+    assert medlink.link(db)["state"] == "window" and medlink.link(db)["window_until"] is not None
     assert set(medlink.earth_briefs(db)[0]["layers"]) == {"headline"}
 
 
@@ -110,3 +110,39 @@ def test_replies_wait_for_the_link_then_arrive(db):
     assert medlink.replies(db, "queued")[0]["reply_id"] == rid
     medlink.set_link(db, inbox, "up")
     assert medlink.replies(db, "delivered")[0]["reply_id"] == rid
+
+
+class LossyTransport:
+    """Hands bundles off but never confirms them, like a BPv7 bundle lost on the way."""
+    confirms_delivery = False
+
+    def __init__(self):
+        self.sent = []
+
+    def deliver(self, bundle_id, brief_id, layer, payload):
+        self.sent.append(bundle_id)
+        return True
+
+    def send_reply(self, reply_id, brief_id, text):
+        self.sent.append(reply_id)
+        return True
+
+
+def test_unconfirmed_bundles_are_requeued_and_resent(db):
+    lossy = LossyTransport()
+    layers, sev = brief()
+    medlink.enqueue(db, layers, sev)
+    medlink.flush(db, lossy)
+    assert {b["status"] for b in medlink.outbox(db)} == {"in_transit"}
+    assert medlink.requeue_stale(db, older_than_s=3600) == []          # not stale yet
+    stale = medlink.requeue_stale(db, older_than_s=0)
+    assert len(stale) == 3 and {b["status"] for b in medlink.outbox(db)} == {"queued"}
+    medlink.flush(db, lossy)                                          # resent; Earth dedups by id
+    assert len(lossy.sent) == 6
+
+
+def test_confirmed_bundles_are_never_requeued(db):
+    layers, sev = brief()
+    medlink.enqueue(db, layers, sev)
+    medlink.flush(db, medlink.EarthInbox(db))
+    assert medlink.requeue_stale(db, older_than_s=0) == []

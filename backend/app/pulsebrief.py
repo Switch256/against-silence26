@@ -23,7 +23,8 @@ class BriefLayer:
 
 
 def build(alert: Alert, history: list[Reading], checkin: CheckIn | None = None,
-          done: list[str] | None = None) -> list[BriefLayer]:
+          done: list[str] | None = None, environment: dict | None = None) -> list[BriefLayer]:
+    """environment: the current NASA DONKI space-weather summary, sent with every brief's context."""
     brief_id = alert.alert_id.replace("al-", "pb-")
     t = int(alert.ts.timestamp())
     headline = {
@@ -37,6 +38,7 @@ def build(alert: Alert, history: list[Reading], checkin: CheckIn | None = None,
         "spo2": latest.spo2 if latest else None,
         "checkin": checkin.model_dump(exclude={"astronaut_id"}) if checkin else None,
         "done": done or [], "todo": alert.todo, "simulated": _simulated(history),
+        "space_weather": environment,
     }
     window = [r for r in history if abs((r.ts - alert.ts).total_seconds()) <= EVIDENCE_WINDOW_S]
     evidence = {

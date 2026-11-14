@@ -36,7 +36,7 @@ def run_story(c):
 def test_empty_mission(client):
     m = client.get("/api/mission").json()
     assert m["mission_time_s"] == 0 and m["events"] == [] and m["bpv7"] is None
-    assert m["link"] == {"state": "up"}
+    assert m["link"] == {"state": "up", "window_until": None}
     assert m["spacecraft"] == {"name": "AEGIS-1", "distance_km": round(14 * 60 * 299792.458),
                                "light_delay_s": 840.0, "phase": "Cruise to Mars"}
     assert m["ground_station"]["name"] in {"DSN Goldstone", "DSN Madrid", "DSN Canberra"}

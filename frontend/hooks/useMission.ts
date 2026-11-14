@@ -7,11 +7,11 @@ import { api, ApiError, type Feeling, type Scenario } from "@/lib/api";
 import { MISSION_RETRY_MS, POLL_MS } from "@/lib/config";
 import { ingestSnapshot, resetTracker, useStore } from "@/lib/store";
 import { demoEarth, demoMission, demoSpacecraft, demoStats } from "@/lib/demo";
+import { ingestEvents, resetNotifications } from "@/lib/notifications";
 
 let missionNextTry = 0;
 let requestSeq = 0;
 let failures = 0;
-let lastWindowEvent: string | null = null;
 let appliedSeq = 0;
 
 async function pollOnce() {
@@ -28,13 +28,13 @@ async function pollOnce() {
     appliedSeq = seq;
     ingestSnapshot(spacecraft, earth);
     failures = 0;
-    useStore.setState({ spacecraft, earth, stats, online: true, lastUpdate: Date.now() });
+    useStore.setState({ spacecraft, earth, stats, online: true, demoFallback: false, lastUpdate: Date.now() });
   } catch {
     // one slow poll is not an outage: flag offline after three misses in a row
     if (++failures >= 3) {
       // The public showcase deliberately works without a backend or login.
       ingestSnapshot(demoSpacecraft, demoEarth);
-      useStore.setState({ spacecraft: demoSpacecraft, earth: demoEarth, stats: demoStats, mission: demoMission, online: true, lastUpdate: Date.now() });
+      useStore.setState({ spacecraft: demoSpacecraft, earth: demoEarth, stats: demoStats, mission: demoMission, online: true, demoFallback: true, lastUpdate: Date.now() });
     }
   } finally {
     window.clearTimeout(timer);
@@ -42,12 +42,11 @@ async function pollOnce() {
 
   if (Date.now() >= missionNextTry) {
     try {
-      const mission = await api.mission();
-      // A short contact window shows up as a backend event: flash the amber beam for it.
-      const win = mission.events?.find((e) => e.kind.toLowerCase().includes("window"));
-      if (win && lastWindowEvent !== null && win.ts !== lastWindowEvent) useStore.getState().flashWindow();
-      lastWindowEvent = win?.ts ?? "";
-      useStore.setState({ mission });
+      const [mission, spaceWeather] = await Promise.all([api.mission(), api.spaceWeather().catch(() => null)]);
+      if (!useStore.getState().demoFallback) {
+        useStore.setState({ mission, spaceWeather });
+        ingestEvents(mission.events ?? []);
+      }
       missionNextTry = 0;
     } catch (err) {
       // 404 = older backend without /api/mission: fall back to derived values, retry rarely.
@@ -79,6 +78,7 @@ export function useMissionPolling() {
 /** Mission data plus the actions that drive the demo. Any component may call this. */
 export function useMission() {
   const spacecraft = useStore((s) => s.spacecraft);
+  const spaceWeather = useStore((s) => s.spaceWeather);
   const earth = useStore((s) => s.earth);
   const stats = useStore((s) => s.stats);
   const mission = useStore((s) => s.mission);
@@ -94,21 +94,19 @@ export function useMission() {
   }, []);
 
   const actions = {
-    sim: (scenario: Scenario, count: number) => run(api.simStep(scenario, count)),
+    sim: (scenario: Scenario, count: number, force = false) => run(api.simStep(scenario, count, force)),
     checkin: (feeling: Feeling, symptom: string | null) => run(api.checkin(feeling, symptom)),
     markDone: (alertId: string, step: string) => run(api.markDone(alertId, step)),
     setLink: (state: "up" | "down") => run(api.setLink(state)),
-    openWindow: () => {
-      useStore.getState().flashWindow();
-      return run(api.openWindow(250));
-    },
+    openWindow: (budgetBytes = 250, durationS = 8) => run(api.openWindow(budgetBytes, durationS)),
+    spaceWeatherReplay: (scenario: "may-2024" | "live") => run(api.spaceWeatherReplay(scenario)),
     reply: (briefId: string, text: string) => run(api.reply(briefId, text)),
     reset: () => {
       resetTracker();
-      useStore.setState({ log: [] });
+      resetNotifications();
       return run(api.reset());
     },
   };
 
-  return { spacecraft, earth, stats, mission, online, actions };
+  return { spacecraft, earth, stats, mission, spaceWeather, online, actions };
 }

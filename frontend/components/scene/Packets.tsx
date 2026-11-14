@@ -1,196 +1,78 @@
 "use client";
-// PulseBrief bundles as glowing packets.
-//  - queued bundles stack up beside the spacecraft (the on-board outbox, store-and-forward)
-//  - departing bundles fly from their slot to the antenna, then along the beam to the DSN station
-//  - Earth replies fly the other way as green packets
+// PulseBrief bundles on the link, kept deliberately understated:
+//  - queued bundles: a neat stack of small plates beside the habitat, with a counter
+//  - bundles in flight: small markers moving along the link, launched in sent_at order;
+//    a marker waits short of Earth until the backend reports delivered_at
+//  - Earth replies: the same marker, travelling the other way
 import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import type { Layer } from "@/lib/api";
 import { COLORS } from "@/lib/constants";
-import { anchors, CRAFT_POS } from "@/lib/sceneLayout";
-import { now, useStore, type Flight } from "@/lib/store";
-import { glowTexture, ringTexture } from "./textures";
+import { fmtBytes } from "@/lib/format";
+import { anchors } from "@/lib/sceneLayout";
+import { now, useStore, type Flight, type QueuedPacket } from "@/lib/store";
+import { linkEarthEnd } from "./LinkLine";
 
-// The on-board outbox: a column of held packets just above and Earth-side of the spacecraft.
-const STACK_ORIGIN = CRAFT_POS.clone().add(new THREE.Vector3(-1.5, 0.9, 1.0));
-const STACK_STEP = 0.3;
-const PER_COLUMN = 6;
+/** The on-board outbox sits just Earth-side of the habitat and travels with it. */
+const STACK_OFFSET = new THREE.Vector3(-1.7, -0.45, 0.7);
+const stackOrigin = (out: THREE.Vector3) => out.copy(anchors.craft).add(STACK_OFFSET);
+const PLATE_GAP = 0.075;
+const MAX_PLATES = 12;
 
-/** The rack scales with camera distance so it reads the same in every view (updated per frame). */
-let stackScale = 1;
-const zoomScale = (d: number) => THREE.MathUtils.clamp(d / 28, 0.28, 1.3);
+/** Keep markers a readable, constant on-screen size at any zoom. */
+const screenScale = (d: number) => THREE.MathUtils.clamp(d / 24, 0.18, 1.6);
+const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
 
-function slotLocal(i: number, out = new THREE.Vector3()) {
-  const col = Math.floor(i / PER_COLUMN);
-  const row = i % PER_COLUMN;
-  return out.set(-col * 0.55, row * STACK_STEP, 0);
-}
-function slotPosition(i: number, out = new THREE.Vector3()) {
-  return slotLocal(i, out).multiplyScalar(stackScale).add(STACK_ORIGIN);
-}
+const BUNDLE_COLOR = new THREE.Color(COLORS.accent).multiplyScalar(1.15);
+const REPLY_COLOR = new THREE.Color("#e8eaeb");
 
-const hdr = (hex: string, k: number) => new THREE.Color(hex).multiplyScalar(k);
-const LAYER_HDR: Record<Layer | "reply", THREE.Color> = {
-  headline: hdr(COLORS.headline, 3),
-  context: hdr(COLORS.context, 2.6),
-  evidence: hdr(COLORS.evidence, 3),
-  reply: hdr(COLORS.reply, 2.6),
-};
-
-const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-const easeSine = (x: number) => -(Math.cos(Math.PI * x) - 1) / 2;
-
-function flightPos(f: Flight, p: number, out: THREE.Vector3, tmp: THREE.Vector3) {
-  if (f.kind === "bundle") {
-    const from = slotPosition(f.fromSlot, tmp);
-    if (p <= 0) return out.copy(from);
-    if (p < 0.16) return out.lerpVectors(from, anchors.dish, ease(p / 0.16));
-    return out.lerpVectors(anchors.dish, anchors.station, easeSine((p - 0.16) / 0.84));
-  }
-  const start = tmp.copy(anchors.station).addScaledVector(anchors.stationNormal, 0.35);
-  if (p <= 0) return out.copy(start);
-  if (p < 0.9) return out.lerpVectors(start, anchors.dish, easeSine(p / 0.9));
-  return out.lerpVectors(anchors.dish, CRAFT_POS, ease((p - 0.9) / 0.1));
-}
-
-const wpos = new THREE.Vector3();
-
-/** Data-packet mesh: a faceted core with a soft halo. Keeps a readable on-screen size at any zoom. */
-function PacketBody({ color, scale = 1, fixed = false }: { color: THREE.Color; scale?: number; fixed?: boolean }) {
-  const ref = useRef<THREE.Group>(null);
-  useFrame(({ camera }) => {
-    if (!ref.current || fixed) return;
-    ref.current.getWorldPosition(wpos);
-    ref.current.scale.setScalar(scale * zoomScale(wpos.distanceTo(camera.position)));
-  });
-  return (
-    <group ref={ref} scale={scale}>
-      <mesh>
-        <octahedronGeometry args={[0.12, 0]} />
-        <meshBasicMaterial color={color} toneMapped={false} />
-      </mesh>
-      <sprite scale={[0.7, 0.7, 1]}>
-        <spriteMaterial map={glowTexture()} color={color} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} opacity={0.7} />
-      </sprite>
-    </group>
-  );
-}
-
-const TRAIL = 7;
+const tmpA = new THREE.Vector3();
+const tmpB = new THREE.Vector3();
 
 function FlyingPacket({ flight }: { flight: Flight }) {
-  const group = useRef<THREE.Group>(null);
-  const body = useRef<THREE.Group>(null);
-  const trail = useRef<(THREE.Sprite | null)[]>([]);
-  const burst = useRef<THREE.Sprite>(null);
-  const color = LAYER_HDR[flight.kind === "reply" ? "reply" : flight.layer ?? "headline"];
-  const v = useMemo(() => new THREE.Vector3(), []);
-  const tmp = useMemo(() => new THREE.Vector3(), []);
-
-  useFrame(({ clock, camera }) => {
-    const p = (now() - flight.start) / flight.duration;
-    const landed = p >= 1;
-    if (body.current) {
-      flightPos(flight, Math.min(1, p), v, tmp);
-      body.current.position.copy(v);
-      body.current.visible = !landed;
-      body.current.rotation.set(clock.elapsedTime * 2, clock.elapsedTime * 3, 0);
-    }
-    trail.current.forEach((s, i) => {
-      if (!s) return;
-      const pp = p - (i + 1) * 0.018;
-      const show = pp > 0.16 && !landed && flight.kind === "bundle" ? 1 : flight.kind === "reply" && pp > 0 && !landed ? 1 : 0;
-      flightPos(flight, Math.min(1, Math.max(0, pp)), v, tmp);
-      s.position.copy(v);
-      const k = (1 - i / TRAIL) * show * zoomScale(v.distanceTo(camera.position));
-      s.scale.setScalar(0.5 * k + 0.0001);
-      (s.material as THREE.SpriteMaterial).opacity = 0.5 * k;
-    });
-    if (burst.current) {
-      const b = (now() - flight.start - flight.duration) / 0.6;
-      const on = b >= 0 && b <= 1;
-      burst.current.visible = on;
-      if (on) {
-        burst.current.position.copy(flight.kind === "bundle" ? anchors.station : anchors.dish);
-        burst.current.scale.setScalar(0.3 + b * 2.2);
-        (burst.current.material as THREE.SpriteMaterial).opacity = 1 - b;
-      }
-    }
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame(({ camera }) => {
+    const m = ref.current;
+    if (!m) return;
+    const raw = (now() - flight.start) / flight.duration;
+    const p = Math.min(raw, flight.delivered ? 1 : 0.94);
+    m.visible = raw >= 0 && raw < 1.02;
+    const from = flight.kind === "bundle" ? stackOrigin(tmpA) : linkEarthEnd(tmpA);
+    const to = flight.kind === "bundle" ? linkEarthEnd(tmpB) : tmpB.copy(anchors.craft);
+    m.position.lerpVectors(from, to, easeInOut(Math.max(0, p)));
+    m.scale.setScalar(screenScale(m.position.distanceTo(camera.position)));
   });
+  return (
+    <mesh ref={ref} visible={false}>
+      <sphereGeometry args={[0.07, 16, 12]} />
+      <meshBasicMaterial color={flight.kind === "bundle" ? BUNDLE_COLOR : REPLY_COLOR} toneMapped={false} />
+    </mesh>
+  );
+}
 
+function OutboxStack({ queued }: { queued: QueuedPacket[] }) {
+  const group = useRef<THREE.Group>(null);
+  const bytes = queued.reduce((n, q) => n + q.size, 0);
+  const plates = Math.min(queued.length, MAX_PLATES);
+  const geo = useMemo(() => new THREE.BoxGeometry(0.26, 0.04, 0.18), []);
+  useFrame(({ camera }) => {
+    const g = group.current;
+    if (!g) return;
+    stackOrigin(g.position);
+    g.scale.setScalar(screenScale(g.position.distanceTo(camera.position)) * 1.4);
+  });
   return (
     <group ref={group}>
-      <group ref={body}>
-        <PacketBody color={color} />
-      </group>
-      {Array.from({ length: TRAIL }).map((_, i) => (
-        <sprite key={i} ref={(el) => { trail.current[i] = el; }}>
-          <spriteMaterial map={glowTexture()} color={color} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-        </sprite>
+      {Array.from({ length: plates }).map((_, i) => (
+        <mesh key={i} geometry={geo} position={[0, i * PLATE_GAP, 0]}>
+          <meshBasicMaterial color={i === plates - 1 ? "#c9d8ea" : "#8ea3ba"} toneMapped={false} />
+        </mesh>
       ))}
-      <sprite ref={burst} visible={false}>
-        <spriteMaterial map={ringTexture()} color={color} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </sprite>
-    </group>
-  );
-}
-
-function QueuedPacket({ index, layer }: { index: number; layer: Layer }) {
-  const ref = useRef<THREE.Group>(null);
-  const target = useMemo(() => slotLocal(index), [index]);
-  useFrame(({ clock }, dt) => {
-    if (!ref.current) return;
-    const t = clock.elapsedTime;
-    ref.current.position.lerp(target, Math.min(1, dt * 6));
-    ref.current.position.y += Math.sin(t * 2 + index) * 0.0015;
-    ref.current.rotation.y = t * 0.8 + index;
-  });
-  return (
-    <group ref={ref} position={[0.6, -0.4, 0]}>
-      <PacketBody color={LAYER_HDR[layer]} scale={0.85} fixed />
-    </group>
-  );
-}
-
-function OutboxRack({ queued }: { queued: { id: string; layer: Layer }[] }) {
-  const group = useRef<THREE.Group>(null);
-  const count = queued.length;
-  const rows = Math.min(count, PER_COLUMN);
-  const cols = Math.ceil(count / PER_COLUMN);
-  const lineGeo = useMemo(() => {
-    const pts: number[] = [];
-    for (let c = 0; c < cols; c++) {
-      const a = slotLocal(c * PER_COLUMN).add(new THREE.Vector3(0, -0.24, 0));
-      const b = slotLocal(c * PER_COLUMN + Math.min(PER_COLUMN, count - c * PER_COLUMN) - 1).add(new THREE.Vector3(0, 0.24, 0));
-      pts.push(a.x - 0.2, a.y, a.z, a.x + 0.2, a.y, a.z, a.x, a.y, a.z, b.x, b.y, b.z);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    return g;
-  }, [count, cols]);
-  const side = useMemo(() => new THREE.Vector3(-0.35 - 0.55 * (cols - 1), ((rows - 1) * STACK_STEP) / 2, 0), [rows, cols]);
-
-  useFrame(({ camera }) => {
-    stackScale = zoomScale(STACK_ORIGIN.distanceTo(camera.position));
-    group.current?.scale.setScalar(stackScale);
-  });
-
-  return (
-    <group ref={group} position={STACK_ORIGIN}>
-      {queued.map((q, i) => (
-        <QueuedPacket key={q.id} index={i} layer={q.layer} />
-      ))}
-      <lineSegments geometry={lineGeo}>
-        <lineBasicMaterial color="#ffb27a" transparent opacity={0.45} />
-      </lineSegments>
-      <Html position={side} zIndexRange={[25, 0]} style={{ pointerEvents: "none" }}>
-        <div className="outbox-flag" style={{ transform: "translate(calc(-100% - 6px), -50%)" }}>
-          <div>
-            <b>{count}</b> held on board
-          </div>
-          <span>store &amp; forward · BPv7</span>
+      <Html position={[0, plates * PLATE_GAP + 0.08, 0]} zIndexRange={[25, 0]} style={{ pointerEvents: "none" }}>
+        <div className="scene-callout" style={{ transform: "translate(-50%, calc(-100% - 4px))" }}>
+          <strong className="num">{queued.length} bundle{queued.length === 1 ? "" : "s"} held on board</strong>
+          <span className="num">{fmtBytes(bytes)} · store and forward</span>
         </div>
       </Html>
     </group>
@@ -200,20 +82,14 @@ function OutboxRack({ queued }: { queued: { id: string; layer: Layer }[] }) {
 function EarthQueue({ count }: { count: number }) {
   const group = useRef<THREE.Group>(null);
   useFrame(() => {
-    if (!group.current) return;
-    group.current.position.copy(anchors.station).addScaledVector(anchors.stationNormal, 0.4);
+    if (group.current) linkEarthEnd(group.current.position).addScaledVector(anchors.stationNormal, 0.25);
   });
   return (
     <group ref={group}>
-      {Array.from({ length: count }).map((_, i) => (
-        <group key={i} position={[0, i * 0.4, 0]}>
-          <PacketBody color={LAYER_HDR.reply} scale={0.85} />
-        </group>
-      ))}
-      <Html position={[0, count * 0.4 + 0.3, 0]} center zIndexRange={[25, 0]} style={{ pointerEvents: "none" }}>
-        <div className="outbox-flag outbox-flag--reply">
-          reply waiting
-          <span>sends when the link opens</span>
+      <Html center zIndexRange={[25, 0]} style={{ pointerEvents: "none" }}>
+        <div className="scene-callout" style={{ transform: "translateY(-100%)" }}>
+          <strong className="num">{count} repl{count === 1 ? "y" : "ies"} waiting on Earth</strong>
+          <span>Sends when the link opens</span>
         </div>
       </Html>
     </group>
@@ -224,12 +100,11 @@ export function Packets() {
   const flights = useStore((s) => s.flights);
   const outbox = useStore((s) => s.outbox);
   const earthQueue = useStore((s) => s.earthQueue);
-  const flyingIds = new Set(flights.map((f) => f.id));
-  const queued = outbox.filter((q) => !flyingIds.has(q.id));
-
+  const flying = new Set(flights.map((f) => f.id));
+  const queued = outbox.filter((q) => !flying.has(q.id));
   return (
     <group>
-      {queued.length > 0 && <OutboxRack queued={queued} />}
+      {queued.length > 0 && <OutboxStack queued={queued} />}
       {flights.map((f) => (
         <FlyingPacket key={f.id} flight={f} />
       ))}

@@ -9,3 +9,6 @@ export const API_BASE = "/backend";
 export const POLL_MS = 1000;
 /** /api/mission is optional; when it 404s we only retry this often. */
 export const MISSION_RETRY_MS = 15000;
+
+/** Prefix for files in public/ (empty locally, set for the static GitHub Pages export). */
+export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";

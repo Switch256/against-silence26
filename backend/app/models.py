@@ -50,7 +50,7 @@ class Alert(BaseModel):
     alert_id: str
     astronaut_id: str
     ts: datetime
-    metric: Literal["heart_rate", "spo2"]
+    metric: Literal["heart_rate", "spo2", "space_weather"]
     value: float
     baseline: float | None
     deviation: float | None = Field(description="z-score against the personal baseline")
@@ -70,6 +70,8 @@ class Bundle(BaseModel):
     size_bytes: int
     status: Literal["queued", "in_transit", "delivered"]
     created: datetime
+    sent_at: datetime | None = Field(default=None, description="handed to the link (BPv7 node)")
+    delivered_at: datetime | None = Field(default=None, description="seen arriving on Earth")
 
 
 class Reply(BaseModel):

@@ -14,4 +14,4 @@ def reset(pool: ConnectionPool) -> None:
     """Empty every table; used by tests and the demo's reset button."""
     with pool.connection() as conn:
         conn.execute(f"TRUNCATE {', '.join(TABLES)}")
-        conn.execute("UPDATE link_state SET state = 'up', bytes_sent = 0")
+        conn.execute("UPDATE link_state SET state = 'up', bytes_sent = 0, window_until = NULL")

@@ -43,16 +43,36 @@ export const ResetIcon = ({ className }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base}><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" /></svg>
 );
 
-/** AEGIS-MEDLINK mark: a shield ring crossed by a pulse line. */
+/** AEGIS-MEDLINK mark: a shield crossed by a pulse line (monochrome). */
 export const Logo = ({ className }: P) => (
-  <svg viewBox="0 0 40 40" className={className} fill="none">
-    <defs>
-      <linearGradient id="lg" x1="0" y1="0" x2="40" y2="40">
-        <stop offset="0" stopColor="#38e1ff" />
-        <stop offset="1" stopColor="#2fe39a" />
-      </linearGradient>
-    </defs>
-    <path d="M20 3 34 8v11c0 9-6 15.5-14 18C12 34.5 6 28 6 19V8l14-5Z" stroke="url(#lg)" strokeWidth="1.8" />
-    <path d="M9 21h6l2.5-6 4 12 3-8 1.5 2H31" stroke="url(#lg)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  <svg viewBox="0 0 40 40" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 4 33 8.5v10c0 8.4-5.6 14.4-13 17-7.4-2.6-13-8.6-13-17v-10L20 4Z" strokeWidth="2" />
+    <path d="M11 21h5l2.4-5.5 3.6 11 2.8-7.5 1.4 2H30" strokeWidth="2" />
   </svg>
+);
+
+/** Caution / warning triangle (shape redundancy so status never relies on colour alone). */
+export const AlertTriangle = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}>
+    <path d="M12 3.5 2.5 20h19L12 3.5Z" />
+    <path d="M12 10v4.5M12 17.2v.3" strokeWidth={2} />
+  </svg>
+);
+export const ChevronIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="m6 9 6 6 6-6" /></svg>
+);
+export const ExternalIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
+);
+export const SunIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" />
+  </svg>
+);
+export const BellIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M6 10a6 6 0 1 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7ZM10 20a2 2 0 0 0 4 0" /></svg>
+);
+export const CloseIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M6 6l12 12M18 6 6 18" /></svg>
 );

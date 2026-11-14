@@ -21,12 +21,12 @@ LINK_STATES = ("up", "down")
 
 def _sent_event(conn, bundle_id: str, layer: str, size: int) -> None:
     events.add(conn, "bundle_sent", f"{layer.capitalize()} handed to the link ({size} B)",
-               layer=layer, bundle_id=bundle_id, size=size)
+               layer=layer, bundle_id=bundle_id, brief_id=bundle_id.split(":")[0], size=size)
 
 
 def _delivered_event(conn, bundle_id: str, layer: str, size: int) -> None:
     events.add(conn, "bundle_delivered", f"{layer.capitalize()} crossed the link ({size} B)",
-               layer=layer, bundle_id=bundle_id, size=size)
+               layer=layer, bundle_id=bundle_id, brief_id=bundle_id.split(":")[0], size=size)
 
 
 def _reply_delivered_event(conn, reply_id: str, brief_id: str) -> None:
@@ -90,7 +90,7 @@ def update_layer(pool: ConnectionPool, brief_id: str, layer: BriefLayer) -> bool
 def outbox(pool: ConnectionPool, status: str | None = None) -> list[dict]:
     with pool.connection() as conn:
         return conn.execute(
-            "SELECT bundle_id, brief_id, layer, severity, size_bytes, status, created, delivered_at FROM bundles "
+            "SELECT bundle_id, brief_id, layer, severity, size_bytes, status, created, sent_at, delivered_at FROM bundles "
             "WHERE %(s)s::text IS NULL OR status = %(s)s ORDER BY status DESC, layer_rank, severity_rank DESC, created",
             {"s": status}).fetchall()
 
@@ -98,25 +98,29 @@ def outbox(pool: ConnectionPool, status: str | None = None) -> list[dict]:
 # ---- the link ----
 
 def link(pool: ConnectionPool) -> dict:
+    """Link state: 'up', 'down', or 'window' (a short contact, until window_until; then back to 'down')."""
     with pool.connection() as conn:
-        return conn.execute("SELECT state, bytes_sent FROM link_state WHERE id = 1").fetchone()
+        conn.execute("UPDATE link_state SET state = 'down', window_until = NULL "
+                     "WHERE id = 1 AND state = 'window' AND window_until <= now()")
+        return conn.execute("SELECT state, bytes_sent, window_until FROM link_state WHERE id = 1").fetchone()
 
 
 def set_link(pool: ConnectionPool, transport: Transport, state: str) -> list[str]:
     if state not in LINK_STATES:
         raise ValueError(f"link state must be one of {LINK_STATES}")
     with pool.connection() as conn:
-        conn.execute("UPDATE link_state SET state = %s WHERE id = 1", (state,))
+        conn.execute("UPDATE link_state SET state = %s, window_until = NULL WHERE id = 1", (state,))
         events.add(conn, f"link_{state}", "Link restored" if state == "up" else "Link lost")
     return flush(pool, transport) if state == "up" else []
 
 
-def open_window(pool: ConnectionPool, transport: Transport, budget_bytes: int) -> list[str]:
-    """A short contact: send what fits in the byte budget, then the link drops again."""
-    sent = flush(pool, transport, budget_bytes=budget_bytes, force=True)
+def open_window(pool: ConnectionPool, transport: Transport, budget_bytes: int,
+                duration_s: float = 8) -> list[str]:
+    """A short contact: send what fits in the byte budget; the link shows 'window' for duration_s, then drops."""
     with pool.connection() as conn:
-        conn.execute("UPDATE link_state SET state = 'down' WHERE id = 1")
-    return sent
+        conn.execute("UPDATE link_state SET state = 'window', window_until = now() + make_interval(secs => %s) "
+                     "WHERE id = 1", (duration_s,))
+    return flush(pool, transport, budget_bytes=budget_bytes, force=True)
 
 
 def flush(pool: ConnectionPool, transport: Transport, budget_bytes: int | None = None,
@@ -137,7 +141,7 @@ def flush(pool: ConnectionPool, transport: Transport, budget_bytes: int | None =
                 break                                   # keep strict priority order
             if not transport.deliver(row["bundle_id"], row["brief_id"], row["layer"], bytes(row["payload"])):
                 break
-            conn.execute("UPDATE bundles SET status = %s, delivered_at = CASE WHEN %s THEN now() END "
+            conn.execute("UPDATE bundles SET status = %s, sent_at = now(), delivered_at = CASE WHEN %s THEN now() END "
                          "WHERE bundle_id = %s", (done, confirmed, row["bundle_id"]))
             conn.execute("UPDATE link_state SET bytes_sent = bytes_sent + %s WHERE id = 1", (row["size_bytes"],))
             _sent_event(conn, row["bundle_id"], row["layer"], row["size_bytes"])
@@ -154,7 +158,7 @@ def flush(pool: ConnectionPool, transport: Transport, budget_bytes: int | None =
                 break
             if not transport.send_reply(r["reply_id"], r["brief_id"], r["text"]):
                 break
-            conn.execute("UPDATE replies SET status = %s, delivered_at = CASE WHEN %s THEN now() END "
+            conn.execute("UPDATE replies SET status = %s, sent_at = now(), delivered_at = CASE WHEN %s THEN now() END "
                          "WHERE reply_id = %s", (done, confirmed, r["reply_id"]))
             if confirmed:
                 _reply_delivered_event(conn, r["reply_id"], r["brief_id"])
@@ -192,7 +196,7 @@ def reply(pool: ConnectionPool, transport: Transport, brief_id: str, text: str,
 def replies(pool: ConnectionPool, status: str | None = None) -> list[dict]:
     with pool.connection() as conn:
         return conn.execute(
-            "SELECT reply_id, brief_id, text, author, created, status, delivered_at FROM replies "
+            "SELECT reply_id, brief_id, text, author, created, status, sent_at, delivered_at FROM replies "
             "WHERE %(s)s::text IS NULL OR status = %(s)s ORDER BY created DESC", {"s": status}).fetchall()
 
 
@@ -223,3 +227,26 @@ def undelivered(pool: ConnectionPool, ids: list[str]) -> list[str]:
             "UNION ALL SELECT reply_id FROM replies WHERE reply_id = ANY(%(ids)s) AND status <> 'delivered'",
             {"ids": ids}).fetchall()
     return [r["id"] for r in rows]
+
+
+def requeue_stale(pool: ConnectionPool, older_than_s: float = 30) -> list[str]:
+    """Bundles/replies handed to the link but never confirmed as arrived go back in the queue.
+
+    A BPv7 bundle can be lost (node restart, endpoint drained by another consumer). Resending is
+    safe: Earth drops duplicates by bundle id, and replies are marked delivered once.
+    """
+    with pool.connection() as conn, conn.transaction():
+        rows = conn.execute(
+            "UPDATE bundles SET status = 'queued', sent_at = NULL WHERE status = 'in_transit' "
+            "AND sent_at < now() - make_interval(secs => %s) RETURNING bundle_id AS id, layer, size_bytes",
+            (older_than_s,)).fetchall()
+        for r in rows:
+            events.add(conn, "bundle_resend", f"{r['layer'].capitalize()} not confirmed, queued again ({r['size_bytes']} B)",
+                       bundle_id=r["id"], brief_id=r["id"].split(":")[0], layer=r["layer"])
+        replies = conn.execute(
+            "UPDATE replies SET status = 'queued', sent_at = NULL WHERE status = 'in_transit' "
+            "AND sent_at < now() - make_interval(secs => %s) RETURNING reply_id AS id, brief_id",
+            (older_than_s,)).fetchall()
+        for r in replies:
+            events.add(conn, "reply_resend", "Earth reply not confirmed, queued again", reply_id=r["id"], brief_id=r["brief_id"])
+    return [r["id"] for r in rows + replies]

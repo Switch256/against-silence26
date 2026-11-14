@@ -85,18 +85,33 @@ def _node_info(node: httpx.Client) -> dict | None:
 class Receiver(threading.Thread):
     """Pulls bundles off both nodes and records what actually arrived."""
 
-    def __init__(self, pool: ConnectionPool, transport: DtnTransport, interval_s: float = 0.5):
+    def __init__(self, pool: ConnectionPool, transport: DtnTransport, interval_s: float = 0.5,
+                 resend_after_s: float = 30):
         super().__init__(daemon=True, name="dtn-receiver")
         self.pool, self.transport, self.interval_s = pool, transport, interval_s
+        self.resend_after_s = resend_after_s
+        self._last_resend_check = 0.0
         self.stopping = threading.Event()
 
     def run(self) -> None:
         while not self.stopping.is_set():
             try:
                 self.poll_once()
+                self.resend_lost()
             except Exception:                              # keep receiving even if one bundle is bad
                 log.exception("receiver error")
             self.stopping.wait(self.interval_s)
+
+    def resend_lost(self) -> list[str]:
+        """Every few seconds: re-queue anything unconfirmed for too long and resend it if the link is up."""
+        if time.monotonic() - self._last_resend_check < 5:
+            return []
+        self._last_resend_check = time.monotonic()
+        stale = medlink.requeue_stale(self.pool, self.resend_after_s)
+        if stale:
+            log.warning("re-sending %d unconfirmed bundle(s)/replies", len(stale))
+            medlink.flush(self.pool, self.transport)
+        return stale
 
     def poll_once(self) -> int:
         n = 0

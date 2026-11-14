@@ -71,7 +71,7 @@
           "spacecraft"
         ],
         "summary": "Sim Step",
-        "description": "Generate simulated readings and ingest them. Use scenario 'spike' to trigger an alert.",
+        "description": "Generate simulated readings and ingest them. 'spike' raises an alert; force=true guarantees one.",
         "operationId": "sim_step_api_sim_step_post",
         "requestBody": {
           "content": {
@@ -284,7 +284,7 @@
           "link"
         ],
         "summary": "Link Window",
-        "description": "A short contact: send what fits in budget_bytes, then the link drops again.",
+        "description": "A short contact: send what fits in budget_bytes; link shows 'window' for duration_s, then drops.",
         "operationId": "link_window_api_link_window_post",
         "requestBody": {
           "content": {
@@ -418,6 +418,86 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/space-weather": {
+      "get": {
+        "tags": [
+          "space weather"
+        ],
+        "summary": "Space Weather",
+        "description": "Crew space-weather environment from NASA DONKI: level, headline, active and recent events.",
+        "operationId": "space_weather_api_space_weather_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/space-weather/refresh": {
+      "post": {
+        "tags": [
+          "space weather"
+        ],
+        "summary": "Space Weather Refresh",
+        "description": "Fetch the last 30 days from NASA DONKI (needs network; NASA_API_KEY raises the rate limit).",
+        "operationId": "space_weather_refresh_api_space_weather_refresh_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/space-weather/replay": {
+      "post": {
+        "tags": [
+          "space weather"
+        ],
+        "summary": "Space Weather Replay",
+        "description": "Replay a real past DONKI event as if it were happening now (raises an AEGIS alert), or go back to live.",
+        "operationId": "space_weather_replay_api_space_weather_replay_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Replay"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -629,6 +709,23 @@
         ],
         "title": "Reading"
       },
+      "Replay": {
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "enum": [
+              "may-2024",
+              "live"
+            ],
+            "title": "Scenario"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario"
+        ],
+        "title": "Replay"
+      },
       "ReplyIn": {
         "properties": {
           "brief_id": {
@@ -677,6 +774,12 @@
             "minimum": 1.0,
             "title": "Count",
             "default": 1
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "guarantee an alert even if cooldown/baseline would suppress it",
+            "default": false
           }
         },
         "type": "object",
@@ -723,6 +826,14 @@
             "minimum": 1.0,
             "title": "Budget Bytes",
             "default": 250
+          },
+          "duration_s": {
+            "type": "number",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Duration S",
+            "description": "how long the link shows 'window' before dropping",
+            "default": 8
           }
         },
         "type": "object",

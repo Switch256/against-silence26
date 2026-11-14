@@ -46,3 +46,13 @@ class Simulator:
         return Reading(astronaut_id=self.astronaut_id, ts=self.clock, heart_rate=round(hr, 1),
                        spo2=round(min(spo2, 100), 1), activity=activity, signal_quality=quality,
                        source="simulator")
+
+    def trigger(self, scenario: str) -> Reading:
+        """One reading that AEGIS always flags, whatever the baseline: for reliable stage demos."""
+        self.clock += timedelta(seconds=self.step_s)
+        if scenario == "low_oxygen":
+            hr, spo2 = 72.0, 88.0
+        else:
+            hr, spo2 = 140.0, 97.0                       # absolute high-heart-rate limit at rest
+        return Reading(astronaut_id=self.astronaut_id, ts=self.clock, heart_rate=hr, spo2=spo2,
+                       activity=Activity.rest, signal_quality=SignalQuality.good, source="simulator")
