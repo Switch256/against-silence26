@@ -36,7 +36,7 @@ export function Toasts() {
         return (
           <div
             key={t.id}
-            className="rise flex gap-2 overflow-hidden rounded border border-[#3a4246] bg-[rgba(22,25,26,0.94)] py-2 pr-2.5 pl-0 shadow-[0_6px_20px_rgba(0,0,0,0.35)]"
+            className="rise flex gap-2 overflow-hidden rounded-lg border-[#3a4246] bg-[rgba(22,25,26,0.94)] py-2 pr-2.5 pl-0 shadow-[0_6px_20px_rgba(0,0,0,0.35)]"
             style={{ opacity: compact ? 0.8 : 1 }}
           >
             <span className="w-[3px] shrink-0 rounded-r" style={{ background: color }} aria-hidden />

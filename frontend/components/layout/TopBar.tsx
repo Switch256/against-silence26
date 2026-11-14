@@ -1,6 +1,7 @@
 "use client";
 // Mission status bar: five fields (mission clock, link, light time, serving DSN station, transport),
 // then the space-weather status, the notification bell and the demo controls.
+import { BASE_PATH } from "@/lib/config";
 import type { ReactNode } from "react";
 import { useLinkVisual } from "@/hooks/useLinkVisual";
 import { useNow } from "@/hooks/useNow";
@@ -115,11 +116,11 @@ export function TopBar() {
   const transport = stats?.transport ?? sc?.transport;
 
   return (
-    <header className="flex h-[42px] shrink-0 items-stretch border-b border-line bg-surface [&_.btn]:h-7">
-      <div className="flex items-center gap-2.5 pr-4 pl-4" title="Team Against the Silence · NASA Space Apps Challenge 2026">
+    <header className="flex h-[42px] shrink-0 items-stretch bg-surface [&_.btn]:h-7">
+      <a href={`${BASE_PATH}/`} className="flex items-center gap-2.5 pr-4 pl-4 hover:opacity-80" title="Back to the AEGIS-MEDLINK home page · Team Against the Silence">
         <Logo className="h-6 w-6 text-fg-2" />
         <div className="text-[14px] font-semibold tracking-[0.02em] whitespace-nowrap">AEGIS-MEDLINK</div>
-      </div>
+      </a>
       <div className="my-3 w-px bg-line" />
       <Field label="Mission elapsed" title={utc}>{met != null ? `T+ ${fmtDuration(met)}` : "—"}</Field>
       <LinkField />

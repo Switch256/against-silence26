@@ -33,7 +33,7 @@ export function LogDrawer() {
   return (
     <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}>
       <aside
-        className="enter absolute top-[52px] right-0 bottom-0 flex w-[440px] flex-col border-l border-line bg-surface shadow-[-12px_0_32px_rgba(0,0,0,0.45)]"
+        className="enter absolute top-[52px] right-0 bottom-0 flex w-[440px] flex-col bg-surface shadow-[-12px_0_32px_rgba(0,0,0,0.45)]"
         onClick={(e) => e.stopPropagation()}
         aria-label="Mission event log"
       >
@@ -51,7 +51,7 @@ export function LogDrawer() {
             <table className="num w-full text-[12px]">
               <tbody>
                 {events.map((e, i) => (
-                  <tr key={`${e.ts}-${i}`} className="border-b border-line/60 last:border-0">
+                  <tr key={`${e.ts}-${i}`} className="odd:bg-white/[0.02]">
                     <td className="w-[70px] py-1.5 align-top font-mono text-[11px] text-fg-3">{utc(e.ts)}</td>
                     <td className="w-[100px] py-1.5 align-top text-fg-3">{label(e.kind)}</td>
                     <td className="py-1.5 text-fg-2">{e.text}</td>

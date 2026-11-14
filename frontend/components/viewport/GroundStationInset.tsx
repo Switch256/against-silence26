@@ -80,7 +80,7 @@ export function GroundStationInset() {
   const p = usePointingReadout();
   return (
     <div className="panel pointer-events-auto w-[280px] overflow-hidden !bg-sunken shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
-      <div className="flex items-center justify-between border-b border-line px-2.5 py-1.5">
+      <div className="flex items-center justify-between px-2.5 py-1.5">
         <span className="text-[12px] font-semibold">DSN {station.name} · {station.antenna} (34 m)</span>
         <span className="text-[11px] text-fg-3">70 m behind</span>
       </div>
@@ -95,7 +95,7 @@ export function GroundStationInset() {
           <Site />
         </Canvas>
       </div>
-      <div className="num grid grid-cols-3 border-t border-line px-2.5 py-1.5 text-[11px]">
+      <div className="num grid grid-cols-3 px-2.5 py-1.5 text-[11px]">
         <span className="text-fg-3">Az <span className="text-fg">{p.az.toFixed(0)}°</span></span>
         <span className="text-fg-3">El <span className="text-fg">{p.el.toFixed(0)}°</span></span>
         <span className="text-right" style={{ color: link === "down" ? COLORS.fg3 : link === "window" ? COLORS.caution : COLORS.nominal }}>

@@ -8,6 +8,8 @@ const basePath = staticExport ? "/against-silence26/demo" : "";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // `next dev` gets its own folder so a `next build` (CI, commits) can never break the running dev server
+  distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   devIndicators: false,
   // public/ assets (Earth textures) are loaded by URL, so the client needs the base path too
   env: { NEXT_PUBLIC_BASE_PATH: basePath },

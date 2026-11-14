@@ -60,11 +60,11 @@ export function ScenarioController() {
   if (!open) return null;
   return (
     <section
-      className="enter fixed inset-x-2 bottom-2 z-30 rounded-md border border-line-strong bg-sunken shadow-[0_-12px_40px_rgba(0,0,0,0.55)]"
+      className="enter fixed inset-x-2 bottom-2 z-30 rounded-md bg-sunken shadow-[0_-12px_40px_rgba(0,0,0,0.55)]"
       aria-label="Mission scenario controller (demo)"
     >
       <header
-        className="flex h-9 items-center gap-3 rounded-t-md border-b border-line px-4"
+        className="flex h-9 items-center gap-3 rounded-t-md px-4"
         style={{ backgroundImage: "repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 8px, transparent 8px 16px)" }}
       >
         <span className="text-[13px] font-semibold text-fg-2">Mission scenario controller</span>

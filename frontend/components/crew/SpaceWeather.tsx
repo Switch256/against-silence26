@@ -25,7 +25,7 @@ export function SpaceWeather() {
     <div>
       <button className="flex w-full items-start gap-2 text-left" onClick={() => setOpen(!open)} aria-expanded={open}>
         <span className="shrink-0 text-[12px] leading-5"><StatusText level={spaceWeatherStatus(sw.level)}>{spaceWeatherWord(sw.level)}</StatusText></span>
-        {sw.mode === "replay" && <span className="mt-0.5 shrink-0 rounded-[3px] border border-accent/60 px-1 text-[10px] leading-4 text-accent" title="Replay of the real May 2024 solar particle event">REPLAY</span>}
+        {sw.mode === "replay" && <span className="mt-0.5 shrink-0 rounded-full bg-accent/20 px-1.5 text-[10.5px] leading-4 font-medium text-accent" title="Replay of the real May 2024 solar particle event">Replay</span>}
         <span className={`min-w-0 flex-1 text-[12px] leading-5 text-fg-2 ${open ? "" : "truncate"}`}>{sw.headline}</span>
         <ChevronIcon className={`mt-0.5 h-4 w-4 shrink-0 text-fg-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>

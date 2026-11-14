@@ -22,7 +22,7 @@ export function NodeCounters() {
       </thead>
       <tbody>
         {rows.map(([name, c]) => (
-          <tr key={name} className="border-t border-line">
+          <tr key={name} className="border-t">
             <td className="py-0.5 text-fg-2">{name}</td>
             {COLS.map((k) => <td key={k} className="py-0.5 text-right text-fg">{c ? c[k] ?? 0 : "—"}</td>)}
           </tr>

@@ -35,7 +35,7 @@ export function ReplyBox({ briefId, replies }: { briefId: string; replies: Reply
       ))}
       <div className="flex flex-wrap gap-1.5">
         {(replies.length ? QUICK.slice(0, 1) : QUICK).map((q) => (
-          <button key={q} disabled={sending} onClick={() => send(q)} className="h-7 rounded border border-line px-2.5 text-[12px] text-fg-2 hover:border-line-strong hover:text-fg">
+          <button key={q} disabled={sending} onClick={() => send(q)} className="h-7 rounded-lg bg-raised px-2.5 text-[12px] text-fg-2 hover:bg-[#22272a] hover:text-fg">
             {q}
           </button>
         ))}
@@ -46,7 +46,7 @@ export function ReplyBox({ briefId, replies }: { briefId: string; replies: Reply
           onChange={(e) => setText(e.target.value)}
           maxLength={500}
           placeholder="Write to the crew…"
-          className="h-9 min-w-0 flex-1 rounded border border-line-strong bg-sunken px-3 text-[13px] outline-none focus:border-accent"
+          className="h-9 min-w-0 flex-1 rounded-lg bg-sunken px-3 text-[13px] outline-none focus:border-accent"
         />
         <button type="submit" disabled={sending || !text.trim()} className="btn btn-primary !h-9">
           <SendIcon className="h-4 w-4" /> Send

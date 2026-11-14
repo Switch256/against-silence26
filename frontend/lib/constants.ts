@@ -13,7 +13,7 @@ export type StationId = (typeof DSN_STATIONS)[number]["id"];
  * Keep in sync with the @theme tokens in app/globals.css.
  */
 export const COLORS = {
-  accent: "#6aa8f0",
+  accent: "#5b9bff",
   nominal: "#3fbf7f",
   caution: "#f0b429",
   warning: "#ff6b5b",
@@ -21,8 +21,8 @@ export const COLORS = {
   fg2: "#b4b9bc",
   fg3: "#858c90",
   fg4: "#5c6468",
-  line: "#262d31",
-  lineStrong: "#3a4246",
+  line: "#252b2f",
+  lineStrong: "#363e43",
 } as const;
 
 /** AEGIS severity -> caution & warning class. "routine" is advisory (no status colour). */

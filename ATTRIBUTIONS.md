@@ -35,11 +35,11 @@ All from [NASA 3D Resources](https://science.nasa.gov/3d-resources/) ([github.co
 | `mars_nasa_3d_resources.jpg` | Mars global map: the 3D Mars | [NASA 3D Resources, Images and Textures: Mars](https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Mars) |
 | `moon_lroc_color_1k.jpg` | Lunar colour map (LRO LROC): the 3D Moon | NASA Goddard Scientific Visualization Studio, [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720) |
 | `earth_black_marble_2012_3600.jpg` | Earth at night, 2012 (Black Marble): city lights on the night side of the 3D Earth | NASA Earth Observatory, [Night Lights 2012](https://visibleearth.nasa.gov/images/79765/night-lights-2012-map) |
+| `earth_day_bluemarble_2048.jpg` | Blue Marble: Earth's land surface and oceans, the day side of the 3D Earth | NASA Goddard Scientific Visualization Studio, [Blue Marble: A Seamless Image Mosaic of the Earth](https://svs.gsfc.nasa.gov/2915) (converted to JPEG) |
+| `earth_ocean_mask_2048.png` | Ocean mask for sun glint, derived by the team from the Blue Marble above | NASA SVS 2915 (derived) |
+| `earth_clouds_svs3615_2048.png` | Cloud layer, derived by the team (bright, colourless pixels) from NASA's cloud-covered equirectangular Earth | NASA Goddard SVS, [Equirectangular Projected Earth](https://svs.gsfc.nasa.gov/3615) (derived) |
 
-**Not yet NASA-sourced:** the Earth day, cloud and specular maps in `frontend/public/textures/`
-(`earth_atmos_2048.jpg`, `earth_clouds_1024.png`, `earth_specular_2048.jpg`) come from the
-[three.js examples](https://github.com/mrdoob/three.js/tree/dev/examples/textures/planets). They are to be replaced
-with NASA Blue Marble imagery.
+All Earth, Moon and Mars imagery is now NASA-sourced; no third-party textures remain.
 
 ## Software
 

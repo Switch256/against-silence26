@@ -80,7 +80,7 @@ export function HeartRate({ readings, alertBaseline }: Props) {
           </dd>
         </dl>
       </div>
-      <div className="mt-1.5 rounded border border-line bg-sunken px-1.5 pt-1">
+      <div className="mt-1.5 rounded-lg bg-sunken px-1.5 pt-1">
         <div className="flex items-center justify-between text-[10px] text-fg-4">
           <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: traceColor }} /> ECG · live · simulated</span>
           <span className="num">{hr != null ? `${Math.round(hr)} bpm` : ""}</span>

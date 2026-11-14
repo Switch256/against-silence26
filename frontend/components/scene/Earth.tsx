@@ -6,7 +6,6 @@ import { Html, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { BASE_PATH } from "@/lib/config";
 import { DSN_STATIONS, type StationId } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import { anchors, EARTH_R, EARTH_TILT, latLonToVec3, SUN_DIR } from "@/lib/sceneLayout";
@@ -94,11 +93,12 @@ const tiltQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1)
 const tiltInv = tiltQ.clone().invert();
 
 export function Earth({ serving }: Props) {
+  // All NASA imagery: Blue Marble day, Black Marble night, ocean and cloud masks derived from NASA SVS
   const [day, night, spec, clouds] = useTexture([
-    `${BASE_PATH}/textures/earth_atmos_2048.jpg`,
-    NASA_TEXTURE.earthNight, // NASA Black Marble 2012
-    `${BASE_PATH}/textures/earth_specular_2048.jpg`,
-    `${BASE_PATH}/textures/earth_clouds_1024.png`,
+    NASA_TEXTURE.earthDay,
+    NASA_TEXTURE.earthNight,
+    NASA_TEXTURE.earthOcean,
+    NASA_TEXTURE.earthClouds,
   ]);
   useMemo(() => {
     day.colorSpace = THREE.SRGBColorSpace;

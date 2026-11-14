@@ -46,7 +46,7 @@ export function BriefCard({ brief, bundles, replies, open, onToggle }: Props) {
   const isNew = isFresh(fresh, brief.brief_id, 8000);
 
   if (count === 0) {
-    return <div className="rounded border border-dashed border-line-strong px-3 py-2.5 text-[13px] text-fg-3">PulseBrief incoming · headline crossing the link</div>;
+    return <div className="rounded-lg border-dashed px-3 py-2.5 text-[13px] text-fg-3">PulseBrief incoming · headline crossing the link</div>;
   }
 
   return (

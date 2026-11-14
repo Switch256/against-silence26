@@ -76,7 +76,7 @@ export function ActiveAlert() {
   const detected = (spacecraft?.outbox ?? []).find((b) => b.brief_id === briefIdOf(a.alert_id))?.created ?? a.ts;
 
   return (
-    <div key={a.alert_id} className="enter overflow-hidden rounded border bg-sunken" style={{ borderColor: sev.color }}>
+    <div key={a.alert_id} className="enter overflow-hidden rounded-lg border bg-sunken" style={{ borderColor: sev.color }}>  {/* severity colour: meaning, not decoration */}
       <button className="block w-full px-3 py-2 text-left" onClick={() => setOpenId(open ? null : a.alert_id)} aria-expanded={open}>
         <div className="flex items-center justify-between gap-2">
           <span className="flex min-w-0 items-center gap-1.5 text-[12px] font-semibold" style={{ color: sev.color }}>

@@ -59,7 +59,7 @@ export function LogTicker() {
       onClick={() => openLog(true)}
       onMouseEnter={() => (hover.current = true)}
       onMouseLeave={() => (hover.current = false)}
-      className="relative block h-7 w-full overflow-hidden border-t border-line bg-[rgba(14,16,17,0.78)] text-left"
+      className="relative block h-7 w-full overflow-hidden bg-[rgba(14,16,17,0.78)] text-left"
       title="Open the mission event log"
     >
       {prev && prev !== e && row(prev, "roll-out")}

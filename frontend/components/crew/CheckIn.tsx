@@ -30,7 +30,7 @@ export function CheckIn() {
               key={f}
               onClick={() => send(f)}
               aria-pressed={on}
-              className={`h-7 min-w-0 flex-1 whitespace-nowrap rounded border px-1 text-[11px] font-medium transition-colors ${on ? "border-accent bg-[#1d2a3a] text-fg" : "border-line-strong bg-raised text-fg-2 hover:text-fg"}`}
+              className={`h-7 min-w-0 flex-1 whitespace-nowrap rounded-lg px-1 text-[11px] font-medium transition-colors ${on ? "bg-accent/25 text-fg ring-1 ring-accent/70" : "bg-raised text-fg-2 hover:bg-[#22272a] hover:text-fg"}`}
             >
               {sending === f ? "Sending…" : feelingLabel(f)}
             </button>
@@ -40,7 +40,7 @@ export function CheckIn() {
           value={symptom}
           onChange={(e) => setSymptom(e.target.value)}
           aria-label="Symptom"
-          className="h-7 w-[78px] shrink-0 rounded border border-line-strong bg-raised px-1 text-[11px] text-fg-2 outline-none focus:border-accent"
+          className="h-7 w-[78px] shrink-0 rounded-lg bg-raised px-1 text-[11px] text-fg-2 outline-none focus:border-accent"
         >
           <option value="">Symptom…</option>
           {SYMPTOMS.map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}

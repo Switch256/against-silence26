@@ -22,6 +22,9 @@ export const NASA_TEXTURE = {
   marsMap: `${BASE_PATH}/textures/nasa/mars_nasa_3d_resources.jpg`,
   moonMap: `${BASE_PATH}/textures/nasa/moon_lroc_color_1k.jpg`,
   earthNight: `${BASE_PATH}/textures/nasa/earth_black_marble_2012_3600.jpg`,
+  earthDay: `${BASE_PATH}/textures/nasa/earth_day_bluemarble_2048.jpg`,      // NASA SVS 2915 Blue Marble
+  earthOcean: `${BASE_PATH}/textures/nasa/earth_ocean_mask_2048.png`,        // derived from the Blue Marble
+  earthClouds: `${BASE_PATH}/textures/nasa/earth_clouds_svs3615_2048.png`,   // derived from NASA SVS 3615
 } as const;
 
 /** Preload what the first frame needs; the small orbiters load lazily behind Suspense. */

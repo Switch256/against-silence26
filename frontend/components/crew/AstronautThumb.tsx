@@ -12,7 +12,7 @@ function Astronaut() {
 
 export function AstronautThumb() {
   return (
-    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded border border-line bg-sunken">
+    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-sunken">
       <Canvas
         dpr={[1, 2]}
         camera={{ position: [0, 0.45, 2.3], fov: 30 }}
