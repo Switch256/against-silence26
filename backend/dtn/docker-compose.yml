@@ -1,0 +1,31 @@
+# Two real BPv7 nodes for MEDLINK. Start: docker compose -f backend/dtn/docker-compose.yml up -d
+# The backend cuts/restores the space link by disconnecting/connecting `earth` from `spacelink`.
+name: aegis-dtn
+services:
+  spacecraft:
+    build: .
+    image: aegis-dtn7:0.21.0
+    container_name: aegis-dtn-spacecraft
+    command: >
+      dtnd -n spacecraft -e crew -C tcp:port=4556 -r epidemic -D sled -W /store
+           --disable_nd -s tcp://172.31.0.20:4556/earth -j 2s -p 24h -U
+    ports: ["127.0.0.1:3020:3000"]
+    volumes: ["spacecraft-store:/store"]
+    networks: { spacelink: { ipv4_address: 172.31.0.10 } }
+  earth:
+    image: aegis-dtn7:0.21.0
+    container_name: aegis-dtn-earth
+    depends_on: [spacecraft]
+    command: >
+      dtnd -n earth -e medical -C tcp:port=4556 -r epidemic -D sled -W /store
+           --disable_nd -s tcp://172.31.0.10:4556/spacecraft -j 2s -p 24h -U
+    ports: ["127.0.0.1:3021:3000"]
+    volumes: ["earth-store:/store"]
+    networks: { spacelink: { ipv4_address: 172.31.0.20 } }
+networks:
+  spacelink:
+    name: aegis-spacelink
+    ipam: { config: [{ subnet: 172.31.0.0/24 }] }
+volumes:
+  spacecraft-store:
+  earth-store:
