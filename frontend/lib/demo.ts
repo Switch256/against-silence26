@@ -1,4 +1,4 @@
-import type { EarthState, MissionState, SpaceWeather, SpacecraftState, Stats } from "./api";
+import type { CrewSummary, EarthState, MissionState, SpaceWeather, SpacecraftState, Stats } from "./api";
 
 const now = new Date().toISOString();
 const alert = {
@@ -45,3 +45,21 @@ export const demoSpaceWeather: SpaceWeather = {
   todo: ["Move to the most shielded module", "Keep your personal dosimeter on", "Postpone any EVA"],
   source: "NASA DONKI", note: "Environmental conditions, not a measured crew dose.", mode: "replay", as_of: "2024-05-09T14:30:00Z",
 };
+
+/** Offline copy of the FICTIONAL crew roster served by GET /api/crew (backend/app/crew.py). */
+const DEMO_COMMON = { mission: "AEGIS-1 (simulated deep-space transit)", simulated: true, fictional: true } as const;
+export const demoCrew: CrewSummary = {
+  profile: {
+    ...DEMO_COMMON, astronaut_id: "crew-01", name: "Aylin Kaya", sex: "Female", age: 38, nationality: "Turkey", country_code: "TR",
+    role: "Flight engineer", height_cm: 168, mass_kg: 61, blood_type: "A+", allergies: "None known", medications: "None",
+    monitored: true, sensor: "Wrist sensor, heart rate + SpO2, BLE (simulated)", sampling: "1 reading per second",
+  },
+  crew: [],
+  baseline: { heart_rate_rest: 72, spo2_rest: 98, window: "built-in demo snapshot" },
+  record: { readings: 0, first: null, last: null, alerts: {}, last_checkin: null },
+};
+demoCrew.crew = [
+  demoCrew.profile,
+  { ...DEMO_COMMON, astronaut_id: "crew-02", name: "Daniel Okello", sex: "Male", age: 44, nationality: "Uganda", country_code: "UG", role: "Commander", height_cm: 181, mass_kg: 78, blood_type: "O+", allergies: "Penicillin", medications: "None", monitored: false },
+  { ...DEMO_COMMON, astronaut_id: "crew-03", name: "Emily Carter", sex: "Female", age: 36, nationality: "United States", country_code: "US", role: "Crew medical officer", height_cm: 166, mass_kg: 60, blood_type: "B+", allergies: "None known", medications: "None", monitored: false },
+];

@@ -1,10 +1,9 @@
 "use client";
 // Landing page: clear and short (one idea per section, few words), in our own visual language
-// (graphite, hairline cards, the console's blue accent), led by a huge real 3D Earth.
-import dynamic from "next/dynamic";
+// (graphite, hairline cards, the console's blue accent), led by a Blender-rendered loop of AEGIS-1 over Earth (tools/blender).
 import Link from "next/link";
-
-const HeroGlobe = dynamic(() => import("@/components/landing/HeroGlobe"), { ssr: false });
+import { HeroFilm } from "@/components/landing/HeroFilm";
+import { StoryFilm } from "@/components/landing/StoryFilm";
 
 const PLAN_URL = "https://switch256.github.io/against-silence26/";
 const REPO_URL = "https://github.com/Switch256/against-silence26";
@@ -41,8 +40,8 @@ export default function Landing() {
 
       {/* hero: the planet from orbit */}
       <section className="site-stars relative h-[min(860px,100dvh)] min-h-[620px] overflow-hidden">
-        <HeroGlobe />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-full bg-[radial-gradient(ellipse_at_50%_8%,rgba(11,13,14,0.85),rgba(11,13,14,0)_55%)]" />
+        <HeroFilm />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-full bg-[radial-gradient(ellipse_at_50%_8%,rgba(11,13,14,0.7),rgba(11,13,14,0)_50%)]" />
         <div className="relative z-10 mx-auto max-w-[1080px] px-5 pt-[clamp(88px,14vh,140px)] text-center">
           <h1 className="mx-auto max-w-[860px] text-[42px] leading-[1.05] font-semibold tracking-[-0.025em] md:text-[66px]">
             Care beyond connectivity.
@@ -62,15 +61,7 @@ export default function Landing() {
       <section id="how" className="mx-auto max-w-[1080px] px-5 pb-4">
         <div className="site-card">
           <h2 className="site-title">From silence to care, in four steps.</h2>
-          <ol className="mt-5 grid gap-5 sm:grid-cols-2 md:grid-cols-4">
-            {STEPS.map(([t, d], i) => (
-              <li key={t}>
-                <div className="font-mono text-[12px] text-[var(--site-accent)]">0{i + 1}</div>
-                <div className="mt-1 text-[18px] font-semibold tracking-tight">{t}</div>
-                <p className="mt-1 text-[14px] leading-[1.5] text-[var(--site-muted)]">{d}</p>
-              </li>
-            ))}
-          </ol>
+          <StoryFilm steps={STEPS} />
         </div>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           {PARTS.map(([k, t, d]) => (

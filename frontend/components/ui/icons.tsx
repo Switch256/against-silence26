@@ -76,3 +76,9 @@ export const BellIcon = ({ className }: P) => (
 export const CloseIcon = ({ className }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base}><path d="M6 6l12 12M18 6 6 18" /></svg>
 );
+export const UserIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg>
+);
+export const DownloadIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
+);

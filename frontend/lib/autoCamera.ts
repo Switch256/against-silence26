@@ -10,10 +10,10 @@ const EVENT_VIEW: Record<string, CameraView> = {
   link_down: "overview", link_up: "overview", window: "overview", space_weather: "overview",
   bundle_delivered: "earth", reply_queued: "earth",
 };
-const EVENT_HOLD_MS = 12_000;          // stay on an event's shot at least this long
-const USER_PAUSE_MS = 30_000;          // after the user moves the camera
+const EVENT_HOLD_MS = 6_000;           // stay on an event's shot at least this long
+const USER_PAUSE_MS = 15_000;          // after the user moves the camera
 const IDLE_CYCLE: { view: CameraView; ms: number }[] = [
-  { view: "overview", ms: 22_000 }, { view: "spacecraft", ms: 14_000 }, { view: "earth", ms: 14_000 },
+  { view: "overview", ms: 10_000 }, { view: "spacecraft", ms: 7_000 }, { view: "earth", ms: 7_000 },
 ];
 
 let holdUntil = 0;

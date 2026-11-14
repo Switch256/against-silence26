@@ -6,7 +6,7 @@ import { COLORS } from "@/lib/constants";
 import { STATUS_COLOR, type StatusLevel } from "@/components/ui/Status";
 import { EcgTrace } from "./EcgTrace";
 
-function median(xs: number[]) {
+export function median(xs: number[]) {
   if (!xs.length) return null;
   const s = [...xs].sort((a, b) => a - b);
   return s[Math.floor(s.length / 2)];
@@ -44,7 +44,7 @@ interface Props {
 }
 
 /** Colour follows the CURRENT reading against the personal baseline (display only; AEGIS decides alerts). */
-function levelOf(hr: number | undefined, baseline: number | null, activity?: string): StatusLevel {
+export function levelOf(hr: number | undefined, baseline: number | null, activity?: string): StatusLevel {
   if (hr == null) return "neutral";
   if (hr >= 140 || hr <= 40) return "warning";
   if (baseline == null || activity === "exercise") return "neutral";

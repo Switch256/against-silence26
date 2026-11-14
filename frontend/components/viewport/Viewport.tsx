@@ -10,6 +10,8 @@ import { useLinkVisual } from "@/hooks/useLinkVisual";
 import { useStore, type CameraView } from "@/lib/store";
 import { GroundStationInset } from "./GroundStationInset";
 import { LogTicker } from "./LogTicker";
+import { CrewStrip } from "./CrewStrip";
+import { MissionClock } from "./MissionClock";
 import { SignalPath } from "./SignalPath";
 import { Toasts } from "./Toasts";
 
@@ -37,7 +39,7 @@ function CameraCaption() {
   }, []);
   const label = PRESETS.find((p) => p.id === view)?.label ?? "";
   return (
-    <div className="flex items-center gap-1.5 rounded-lg bg-[rgba(14,16,17,0.7)] px-2.5 py-1 text-[11px] text-fg-3" title="The camera follows events automatically. Drag to look around; it takes over again after 30 s.">
+    <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[rgba(14,16,17,0.7)] px-2.5 py-1 text-[11px] text-fg-3" title="The camera follows events automatically. Drag to look around; it takes over again after 15 s.">
       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
       Auto camera · <span key={view} className="enter text-fg-2">{label}</span>
     </div>
@@ -88,13 +90,16 @@ function Hud() {
     [String(held), held === 1 ? "bundle held on board" : "bundles held on board", held ? COLORS.caution : undefined],
   ];
   return (
-    <div className="flex gap-7" title={`${mission?.spacecraft?.phase ?? "Cruise to Mars"} · distances and sizes not to scale`}>
-      {items.map(([v, label, color]) => (
-        <div key={label} className="leading-none">
-          <div className="num text-[28px] font-light tracking-tight" style={color ? { color } : undefined}>{v}</div>
-          <div className="mt-1.5 text-[11px] text-fg-3">{label}</div>
-        </div>
-      ))}
+    <div className="flex min-w-0 flex-nowrap items-center gap-x-8">
+      <div className="flex gap-7" title={`${mission?.spacecraft?.phase ?? "Cruise to Mars"} · distances and sizes not to scale`}>
+        {items.map(([v, label, color]) => (
+          <div key={label} className="leading-none">
+            <div className="num text-[28px] font-light tracking-tight" style={color ? { color } : undefined}>{v}</div>
+            <div className="mt-1.5 text-[11px] text-fg-3">{label}</div>
+          </div>
+        ))}
+      </div>
+      <CrewStrip />
     </div>
   );
 }
@@ -140,9 +145,12 @@ export function Viewport() {
   return (
     <section className="panel relative min-h-0 flex-1 overflow-hidden !bg-[#030405]">
       <Scene />
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4">
-        <Hud />
-        <div className="flex flex-col items-end gap-3">
+      <div className="@container pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between gap-4 p-4">
+        <div className="flex min-w-0 flex-col items-start gap-3">
+          <Hud />
+          <MissionClock />
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-3">
           <CameraCaption />
           <Toasts />
         </div>

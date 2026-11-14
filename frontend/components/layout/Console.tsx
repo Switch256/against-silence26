@@ -9,6 +9,7 @@ import { ScenarioController } from "@/components/demo/ScenarioController";
 import { EarthConsole } from "@/components/earth/EarthConsole";
 import { Viewport } from "@/components/viewport/Viewport";
 import { LogDrawer } from "./LogDrawer";
+import { CrewRecord } from "@/components/crew/CrewRecord";
 import { TopBar } from "./TopBar";
 
 const SIDE = "minmax(264px,300px)";
@@ -43,6 +44,7 @@ export function Console() {
         {panels.earth && <EarthConsole />}
       </div>
       <LogDrawer />
+      <CrewRecord />
       <ScenarioController />
     </main>
   );

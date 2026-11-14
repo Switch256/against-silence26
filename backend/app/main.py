@@ -3,16 +3,18 @@
 API docs: /docs   ·   Prototype test page: /proto/
 """
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import db, events, medlink
+from . import crew, db, events, medlink
 from .config import get_settings
 from .mission import Mission
 from .models import CheckIn, Reading
@@ -229,6 +231,48 @@ def space_weather_refresh():
 def space_weather_replay(body: Replay):
     """Replay a real past DONKI event as if it were happening now (raises an AEGIS alert), or go back to live."""
     return mission().replay_space_weather(body.scenario)
+
+
+# ---- crew record: profile, measurement history, export ----
+
+@app.get("/api/crew", tags=["crew record"])
+def crew_record(astronaut_id: str | None = None):
+    """The astronaut's (simulated) profile, personal baselines and what the record holds."""
+    m = mission()
+    return crew.summary(m.pool, astronaut_id or m.settings.astronaut_id)
+
+
+@app.get("/api/crew/history", tags=["crew record"])
+def crew_history(start: datetime | None = None, end: datetime | None = None,
+                 step_s: int = Query(0, ge=0, le=86_400, description="0 = every reading; >0 = averages per bucket of this many seconds"),
+                 limit: int = Query(500, ge=1, le=5000), before: datetime | None = Query(None, description="page: rows older than this"),
+                 astronaut_id: str | None = None):
+    """Measurements at each time (newest first) with the alerts and check-ins in the same range."""
+    m = mission()
+    return crew.history(m.pool, astronaut_id or m.settings.astronaut_id, start, end, step_s, limit, before)
+
+
+@app.get("/api/crew/export", tags=["crew record"])
+def crew_export(dataset: Literal["readings", "alerts", "checkins", "all"] = "readings",
+                format: Literal["csv", "json"] = "csv",
+                start: datetime | None = None, end: datetime | None = None, astronaut_id: str | None = None):
+    """Download the historical record. CSV per dataset; JSON can bundle all three with the profile."""
+    m = mission()
+    aid = astronaut_id or m.settings.astronaut_id
+    stamp = datetime.now().strftime("%Y%m%d-%H%M")
+    if format == "csv":
+        if dataset == "all":
+            raise HTTPException(422, "CSV exports one dataset at a time; use format=json for all")
+        cols, rows = crew.rows_for(m.pool, dataset, aid, start, end)
+        return Response(crew.to_csv(cols, rows, aid), media_type="text/csv",
+                        headers={"Content-Disposition": f'attachment; filename="aegis-{aid}-{dataset}-{stamp}.csv"'})
+    sets = crew.DATASETS if dataset == "all" else (dataset,)
+    body = {"exported_at": datetime.now().astimezone(), "note": "SIMULATED data from the AEGIS-MEDLINK demo; not a medical device",
+            "profile": crew.profile(aid), "start": start, "end": end}
+    for d in sets:
+        body[d] = crew.rows_for(m.pool, d, aid, start, end)[1]
+    return JSONResponse(jsonable_encoder(body),
+                        headers={"Content-Disposition": f'attachment; filename="aegis-{aid}-{dataset}-{stamp}.json"'})
 
 
 @app.get("/api/stats", tags=["system"])

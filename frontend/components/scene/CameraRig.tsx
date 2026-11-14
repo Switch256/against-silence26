@@ -10,7 +10,7 @@ import { autoCameraUserMoved } from "@/lib/autoCamera";
 import { anchors, CAMERA_VIEWS } from "@/lib/sceneLayout";
 import { useStore, type CameraView } from "@/lib/store";
 
-const TRANSITION_S = 3.2;
+const TRANSITION_S = 2.0;
 const easeInOutSine = (x: number) => -(Math.cos(Math.PI * x) - 1) / 2;
 const MIN_DISTANCE = 0.4;
 const MAX_DISTANCE = 90;
