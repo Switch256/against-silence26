@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Framework build output
+.next/
+out/
+dist/
+.turbo/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Test and coverage output
+coverage/
+playwright-report/
+test-results/
+
+# OS/editor files
+.DS_Store

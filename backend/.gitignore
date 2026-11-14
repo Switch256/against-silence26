@@ -1,0 +1,25 @@
+# Python cache and tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local configuration and data
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+
+# Coverage and build output
+.coverage
+htmlcov/
+dist/
+build/
