@@ -6,13 +6,16 @@ canlı gösteri için 15 saniye pay bırakıldı. Köşeli parantezler sahne not
 ## 1. Açılış (20 sn) · Slayt 1
 
 Merhaba, biz **Against the Silence** takımıyız. Projemizin adı **AEGIS-MEDLINK**.
-Sloganımız: bağlantının ötesinde sağlık. Astronotun sağlığını, Dünya sustuğunda bile izleyen bir yazılım yaptık.
+Görevimiz: uzay görevlerindeki astronotlar için sağlık izleme yazılımı geliştirmek.
+Biz, Dünya sustuğunda bile çalışan bir yazılım yaptık.
 
 ## 2. Sorun (45 sn) · Slayt 2
 
-Uluslararası Uzay İstasyonu'nda bir astronotun nabzı yükselirse, yerdeki doktor bunu saniyeler içinde görür.
-Mars yolunda durum farklı. Bir sinyalin Dünya'ya ulaşması 22 dakikaya kadar sürer. Soru sorup cevap almak bunun iki katı.
+Görevin 182. günü. Astronotumuz Aylin'in nabzı, dinlenirken yükseliyor.
+Uluslararası Uzay İstasyonu'nda olsa, yerdeki doktor bunu saniyeler içinde görürdü.
+Ama Aylin Dünya'dan 250 milyon kilometre uzakta. Haber Dünya'ya 14 dakikada ulaşır.
 Güneş, Dünya ile Mars'ın arasına girdiğinde ise yaklaşık iki hafta hiç bağlantı yoktur.
+[Aylin hayali bir mürettebat üyesi, verileri simülasyon. Soru gelirse söyle.]
 Bir sağlık olayı bu kadar bekleyemez. Ve bağlantı yokken tek bir tıbbi kayıt bile kaybolmamalıdır.
 
 ## 3. Çözüm (60 sn) · Slayt 3
@@ -26,9 +29,11 @@ Burada yapay zekâ modeli yok; kurallar ve istatistik var. Bu yüzden her uyarı
 **PulseBrief** her olayı üç katmana böler: başlık, bağlam, kanıt. En önemli 120 bayt, en kısa bağlantı penceresinden bile geçer.
 
 **MEDLINK** bu mesajları gerçek BPv7 protokolüyle taşır. Bu, uzay için tasarlanmış, gecikmeye dayanıklı bir ağ protokolüdür.
-Bağlantı koptuğunda mesajlar araçta bekler, bağlantı gelince sırayla Dünya'ya ulaşır. Doktorun cevabı da aynı yoldan geri döner.
+Bağlantı koptuğunda mesajlar araçta bekler, bağlantı gelince en acil olan önce Dünya'ya ulaşır. Doktorun cevabı da aynı yoldan geri döner.
 
-## 4. Canlı gösteri (90 sn) · againstsilence.earth/demo
+Bu bir hayal değil: NASA, gecikmeye dayanıklı ağı bugün Uzay İstasyonu'nda kullanıyor. Biz de aynı ailenin güncel standardı BPv7'yi, iki gerçek ağ düğümü arasında çalıştırıyoruz.
+
+## 4. Canlı gösteri (90 sn) · Slayt 4, sonra againstsilence.earth/demo
 
 [Konsolu aç. Solda astronot ekranı, ortada 3B görünüm, sağda Dünya konsolu.]
 
@@ -51,20 +56,21 @@ Bağlantı geri geldi. Önce başlıklar geçti, ardından bağlam ve kanıt. Sa
 
 Doktor cevap yazıyor ve cevap astronota ulaşıyor.
 
+[Slayt 4'e dön.] Test çalışmamızda 2,7 megabaytlık ham veri yerine yalnızca 21 kilobayt gönderdik: 128 kat daha az, hiçbir şey kaybolmadan. 60 otomatik testimiz geçiyor.
+
 ## 5. NASA verisi (35 sn) · Slayt 5
 
-NASA verisini yalnızca kaynak göstermedik, sistemin içinde kullandık.
-NASA DONKI'den gelen gerçek uzay havası olayları AEGIS'e girer; güçlü bir Güneş fırtınasında mürettebata sığınak uyarısı verilir.
-Mayıs 2024'teki gerçek fırtınayı sistemde yeniden oynatabiliyoruz.
+Gerçek NASA verisi, gerçek uyarı. Ekrandaki görüntü, Mayıs 2024'teki gerçek Güneş fırtınasının NASA DONKI kayıtlarıyla yeniden oynatılması.
+İki Güneş parçacık olayı, araçta acil bir uyarı ve sığınma adımları oluşturuyor; Dünya'ya giden her mesaj da bu bilgiyi taşıyor.
 Yer istasyonları NASA'nın Derin Uzay Ağı'nın gerçek istasyonlarıdır. Dünya, yıldızlar ve uzay aracı modeli de NASA kaynaklıdır.
 
-## 6. Sonuçlar ve kapanış (35 sn) · Slayt 6 ve 7
+## 6. Dünya'daki etki ve kapanış (35 sn) · Slayt 6 ve 7
 
-Test çalışmamızda 2,7 megabaytlık ham veri yerine yalnızca 21 kilobayt gönderdik: yaklaşık 128 kat daha az.
-Tekrarlanan kesintilerde tek bir olay bile kaybolmadı. 60 otomatik testimiz geçiyor.
+Aynı sessizlik Dünya'da da var. Haftalarca limandan uzak gemiler, Antarktika'daki araştırma istasyonları,
+Türkiye'de ya da Uganda'da uzmanın saatlerce uzakta olduğu köy klinikleri, depremden sonra ağların çöktüğü bölgeler.
+Aynı tasarım bu yerlerin hepsinde işe yarar.
 
-Bu bir araştırma prototipidir, tıbbi cihaz değildir. Ama aynı tasarım doktordan uzak her yerde işe yarar:
-araştırma istasyonları, gemiler, uzak klinikler, afet bölgeleri.
+Bu bir araştırma prototipidir, tıbbi cihaz değildir.
 
 Sessizlik sürerken astronot asla yalnız değildir. Teşekkür ederiz.
 

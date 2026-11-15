@@ -121,6 +121,9 @@ Against the Silence · Sivas, Türkiye
 
 ## Re-making the demo files
 
-- Video: `Blender -b -P tools/blender/demo_video.py` writes `frontend/public/media/aegis-medlink-demo-30s.mp4` (29 s, 1080p).
+- Video: with the backend (:8001) and frontend (:3001) running, record the console with
+  `GPU=1 node tools/record/record_console.mjs /tmp/rec-cut cut`, then
+  `Blender -b -P tools/blender/demo_video.py -- --rec /tmp/rec-cut` writes `frontend/public/media/aegis-medlink-demo-30s.mp4` (29 s, 1080p).
+- DONKI screenshot for slide 5 and the video: `GPU=1 node tools/record/record_console.mjs /tmp/rec-sep sep`.
 - Slides PDF: open `/slides` in Chrome and print to PDF (the page sets the 16:9 page size), or run headless Chrome with `--print-to-pdf`.
 - Console screenshots: `docs/media/shots/`.
