@@ -1,7 +1,10 @@
 /* Submission slides: seven 16:9 slides. Every size is a multiple of --u (1/1920 of the slide width),
    so the deck looks the same on any screen and prints one slide per page (see @page). */
-.deck { --u: calc(100vw / 1920); background: #000; color: var(--color-fg); height: 100dvh; overflow-y: auto; scroll-snap-type: y mandatory; }
-.slide { position: relative; width: 100vw; height: calc(var(--u) * 1080); overflow: hidden; scroll-snap-align: start; background: var(--color-bg);
+.deck { --u: calc(100vw / 1920);
+  /* NASA blue (#0B3D91) is the one accent of the deck: background glow, cards, bands, key numbers. No logo. */
+  --nasa: #0b3d91; --nasa-tint: #9cb9f2; --nasa-card: color-mix(in srgb, #0b3d91 22%, var(--color-surface)); background: #000; color: var(--color-fg); height: 100dvh; overflow-y: auto; scroll-snap-type: y mandatory; }
+.slide { position: relative; width: 100vw; height: calc(var(--u) * 1080); overflow: hidden; scroll-snap-align: start;
+  background: radial-gradient(ellipse 70% 80% at 0% 0%, rgba(11, 61, 145, 0.42), transparent 60%), radial-gradient(ellipse 60% 70% at 100% 100%, rgba(11, 61, 145, 0.22), transparent 60%), var(--color-bg);
   padding: calc(var(--u) * 96) calc(var(--u) * 120); display: flex; flex-direction: column; justify-content: center; break-after: page; }
 .slide:last-child { break-after: auto; }
 .slide h1 { font-size: calc(var(--u) * 132); font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
@@ -17,22 +20,24 @@
 .cols.c3 { grid-template-columns: repeat(3, 1fr); }
 .cols.c2 { grid-template-columns: repeat(2, 1fr); }
 .cols.c4 { grid-template-columns: repeat(4, 1fr); }
-.card { background: var(--color-surface); border-radius: calc(var(--u) * 22); padding: calc(var(--u) * 36); }
+.card { background: var(--nasa-card); border-radius: calc(var(--u) * 22); padding: calc(var(--u) * 36); }
 .card h3 { font-size: calc(var(--u) * 36); font-weight: 600; color: var(--color-fg); margin-bottom: calc(var(--u) * 12); letter-spacing: -0.01em; }
 .card p { font-size: calc(var(--u) * 27); }
-.big { font-size: calc(var(--u) * 92); font-weight: 300; letter-spacing: -0.03em; line-height: 1; color: var(--color-fg); font-variant-numeric: tabular-nums; }
+.big { font-size: calc(var(--u) * 92); font-weight: 300; letter-spacing: -0.03em; line-height: 1; color: var(--nasa-tint); font-variant-numeric: tabular-nums; }
 .shot { width: 100%; border-radius: calc(var(--u) * 14); display: block; }
 .shots { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 28); margin-top: calc(var(--u) * 40); }
 .shots p { margin-top: calc(var(--u) * 16); font-size: calc(var(--u) * 26); }
-.challenge { margin-top: calc(var(--u) * 36); display: inline-block; background: rgba(8, 10, 12, 0.6); border-radius: calc(var(--u) * 14); padding: calc(var(--u) * 14) calc(var(--u) * 22); }
-.band { margin-top: calc(var(--u) * 36); font-size: calc(var(--u) * 29); line-height: 1.42; color: var(--color-fg-2); background: var(--color-surface); border-radius: calc(var(--u) * 22); padding: calc(var(--u) * 28) calc(var(--u) * 36); }
+.challenge { margin-top: calc(var(--u) * 36); display: inline-block; background: var(--nasa); color: #dfe8fb !important; border-radius: calc(var(--u) * 14); padding: calc(var(--u) * 14) calc(var(--u) * 22); }
+.band { margin-top: calc(var(--u) * 36); font-size: calc(var(--u) * 29); line-height: 1.42; color: #dfe8fb; background: var(--nasa); border-radius: calc(var(--u) * 22); padding: calc(var(--u) * 28) calc(var(--u) * 36); }
+.band strong, .challenge strong { color: #fff; }
 .facts { margin-top: calc(var(--u) * 30); }
+.facts strong { color: var(--nasa-tint); }
 .facts > div { font-size: calc(var(--u) * 26); line-height: 1.4; color: var(--color-fg-2); }
 .split { display: grid; grid-template-columns: 1.55fr 1fr; gap: calc(var(--u) * 44); margin-top: calc(var(--u) * 40); align-items: start; }
 .grow { height: calc(var(--u) * 48); }
 .slide ul { margin-top: calc(var(--u) * 8); display: grid; gap: calc(var(--u) * 10); }
 .slide li { list-style: none; }
-.slide a { color: var(--color-accent-strong); }
+.slide a { color: var(--nasa-tint); }
 @page { size: 1920px 1080px; margin: 0; }
 @media print {
   .deck { height: auto; overflow: visible; }
