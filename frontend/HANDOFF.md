@@ -1,6 +1,6 @@
 # Frontend handoff: AEGIS-MEDLINK API
 
-For **Mariam** (Next.js PWA: astronaut dashboard + Earth console) and **David** (testing).
+For **Mariam** (Next.js PWA: astronaut dashboard + Earth console) and **Devid** (testing).
 The backend is ready to build against. Full contract: [`openapi.json`](openapi.json), or live docs at `http://127.0.0.1:8001/docs`.
 
 ## Run the backend
@@ -123,7 +123,7 @@ Layers arrive one at a time: **always check which keys exist** in `layers`. Each
 - [ ] Installable as a PWA (manifest + icons)
 - [ ] Branch from `frontend`, open a pull request, ask Martin to review
 
-## Demo test script (David)
+## Demo test script (Devid)
 
 Run in this order on a fresh `POST /api/reset`; tick each one and file an issue for anything broken or confusing.
 

@@ -27,7 +27,7 @@ export default function Slides() {
           <p className="challenge">Challenge: <strong>Create Health Monitoring Software for Astronauts on Space Missions</strong></p>
           <p style={{ marginTop: "calc(var(--u) * 28)" }}>
             <strong>Team Against the Silence</strong> · Sivas, Türkiye<br />
-            Asasira Martin · Mariam Saied · David Kitasho
+            Asasira Martin · Mariam Saied · Devid Kitasho
           </p>
           <p className="small" style={{ marginTop: "calc(var(--u) * 20)" }}>NASA International Space Apps Challenge 2026 · againstsilence.earth</p>
         </div>
