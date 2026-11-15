@@ -1,6 +1,6 @@
 "use client";
-// The blackout switch, in plain sight for the judges: cut the space link, open a short contact
-// window, or restore it. The same actions as the demo controller, one click (or the L key) away.
+// The blackout switch, in plain sight for the judges: raise the astronaut's vitals, cut the space link,
+// open a short contact window, or restore it. The same actions as the demo controller, one click (or the L key) away.
 // Tagged "Demo" because a real crew cannot switch the link: on a mission it drops by itself.
 import { useEffect, useState } from "react";
 import { useLinkVisual } from "@/hooks/useLinkVisual";
@@ -39,6 +39,14 @@ export function LinkSwitch() {
         title={down ? "Restore the space link: held bundles go to Earth, headlines first (L)" : "Cut the space link: AEGIS keeps working, bundles are held on board (L)"}
       >
         {down ? "Restore link" : "Cut link"}
+      </button>
+      <button
+        className="btn !h-7 !rounded-full"
+        disabled={!online || busy}
+        onClick={() => run(() => actions.sim("spike", 30, true))}
+        title="Simulate a heart-rate rise at rest: AEGIS raises the alert on board and shows the crew what to do, with or without the link"
+      >
+        Raise vitals
       </button>
       <button
         className="btn btn-quiet !h-7 !rounded-full"

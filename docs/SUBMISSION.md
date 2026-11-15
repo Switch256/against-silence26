@@ -22,6 +22,7 @@ English, as the rules require. Deadline: **Sunday 15 November 2026, 23:59 (Türk
 | 30-second demo video | https://againstsilence.earth/media/aegis-medlink-demo-30s.mp4 |
 | Slides (7, web page) | https://againstsilence.earth/slides |
 | Slides (PDF) | https://againstsilence.earth/aegis-medlink-slides.pdf |
+| Turkish slides for the local talk (web / PDF) | https://againstsilence.earth/slides/tr · https://againstsilence.earth/aegis-medlink-slaytlar-tr.pdf |
 | Source code | https://github.com/Switch256/against-silence26 |
 | NASA data and asset credits | https://github.com/Switch256/against-silence26/blob/main/ATTRIBUTIONS.md |
 

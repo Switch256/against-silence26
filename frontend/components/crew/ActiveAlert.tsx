@@ -4,6 +4,7 @@
 // and the "what to do now" checklist expand in place.
 import { useState } from "react";
 import { useMission } from "@/hooks/useMission";
+import { useLinkVisual } from "@/hooks/useLinkVisual";
 import type { Alert, Bundle } from "@/lib/api";
 import { COLORS, SEVERITY } from "@/lib/constants";
 import { briefIdOf, metricLabel, metricUnit, utc } from "@/lib/format";
@@ -80,7 +81,9 @@ function Causes({ alert, activity }: { alert: Alert; activity?: string }) {
 export function ActiveAlert() {
   const { spacecraft } = useMission();
   const a = spacecraft?.latest_alert;
-  const [openId, setOpenId] = useState<string | null>(null);
+  const link = useLinkVisual();
+  // A new alert opens with its checklist showing: the crew sees what to do at once, link or no link.
+  const [closedId, setClosedId] = useState<string | null>(null);
   if (!a) {
     return (
       <div className="text-[12px]">
@@ -89,7 +92,7 @@ export function ActiveAlert() {
       </div>
     );
   }
-  const open = openId === a.alert_id;
+  const open = closedId !== a.alert_id;
   const sev = SEVERITY[a.severity];
   const level: StatusLevel = a.severity === "urgent" ? "warning" : a.severity === "review" ? "caution" : "neutral";
   const isSW = a.metric === "space_weather";
@@ -102,7 +105,7 @@ export function ActiveAlert() {
 
   return (
     <div key={a.alert_id} className="enter overflow-hidden rounded-lg border bg-sunken" style={{ borderColor: sev.color }}>  {/* severity colour: meaning, not decoration */}
-      <button className="block w-full px-3 py-2 text-left" onClick={() => setOpenId(open ? null : a.alert_id)} aria-expanded={open}>
+      <button className="block w-full px-3 py-2 text-left" onClick={() => setClosedId(open ? a.alert_id : null)} aria-expanded={open}>
         <div className="flex items-center justify-between gap-2">
           <span className="flex min-w-0 items-center gap-1.5 text-[12px] font-semibold" style={{ color: sev.color }}>
             <StatusMark level={level} className="h-3.5 w-3.5 shrink-0" />
@@ -129,6 +132,11 @@ export function ActiveAlert() {
       {open && (
         <div className="enter space-y-2.5 px-3 pb-3">
           <p className="text-[13px] leading-5 text-fg-2">{a.reason}</p>
+          {link === "down" && (
+            <p className="rounded bg-white/[0.04] px-2 py-1.5 text-[12px] text-fg-2">
+              <span className="font-semibold text-fg">No link to Earth.</span> These steps come from AEGIS on board and need no answer from Earth. The brief goes home when contact returns.
+            </p>
+          )}
           <div className="text-[12px]"><StatusText level={ev.level} className="!font-normal">{ev.text}</StatusText></div>
           <Checklist alert={a} />
           <Causes alert={a} activity={spacecraft?.readings.at(-1)?.activity} />

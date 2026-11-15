@@ -62,12 +62,12 @@ export default function Slides() {
 
       {/* 4. The working system, with the numbers in plain words */}
       <section id="s4" className="slide">
-        <h2>It runs. Cut the link yourself.</h2>
+        <h2>It runs. Cut the link, raise the vitals, watch.</h2>
         <div className="shots">
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="shot" src={img("shots/console-blackout.jpg")} alt="The live console during a blackout: link down, bundles held on board, a heart-rate warning shown to the crew" />
-            <p><strong>Link cut.</strong> AEGIS still raises the alert and guides the crew. The briefs wait on board.</p>
+            <img className="shot" src={img("shots/console-raise-vitals.jpg")} alt="The live console with the link cut after pressing Raise vitals: the heart-rate alert is open on the crew console with its steps (sit down and rest, drink water, re-measure) and a note that no answer from Earth is needed" />
+            <p><strong>Link cut, vitals raised.</strong> AEGIS raises the alert on board and shows the crew what to do at once. No answer from Earth needed. The brief waits on board.</p>
           </div>
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -120,7 +120,7 @@ export default function Slides() {
       <section id="s7" className="slide">
         <h2>During the silence, the astronaut is never alone.</h2>
         <div className="cols c3">
-          <div className="card"><h3>Try it</h3><p><a href="https://againstsilence.earth">againstsilence.earth</a><br />Live console: /demo<br />Press &quot;Cut link&quot;, trigger an anomaly, restore the link.</p></div>
+          <div className="card"><h3>Try it</h3><p><a href="https://againstsilence.earth">againstsilence.earth</a><br />Live console: /demo<br />Press &quot;Cut link&quot;, then &quot;Raise vitals&quot;, then &quot;Restore link&quot;.</p></div>
           <div className="card"><h3>Read it</h3><p><a href="https://github.com/Switch256/against-silence26">github.com/Switch256/against-silence26</a><br />FastAPI, PostgreSQL, Next.js, dtn7-rs, Blender.</p></div>
           <div className="card"><h3>Honest limits</h3><p>Crew vitals are simulated and labelled. The light delay is shortened for the demo. A research prototype, not a medical device.</p></div>
         </div>
