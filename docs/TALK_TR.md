@@ -1,6 +1,6 @@
 # Sunum metni (Türkçe, 5 dakika + 2 dakika soru)
 
-Pazar 15 Kasım, 15:00. Slaytlar İngilizce (`/slides`), konuşma Türkçe. Toplam yaklaşık 4 dakika 45 saniye;
+Pazar 15 Kasım, 15:00. Slaytlar Türkçe (`/slides/tr`, PDF: `aegis-medlink-slaytlar-tr.pdf`; İngilizcesi `/slides`), konuşma Türkçe. Toplam yaklaşık 4 dakika 45 saniye;
 canlı gösteri için 15 saniye pay bırakıldı. Köşeli parantezler sahne notudur, okunmaz.
 
 ## 1. Açılış (20 sn) · Slayt 1
@@ -43,9 +43,10 @@ Bu bir hayal değil: NASA, gecikmeye dayanıklı ağı bugün Uzay İstasyonu'nd
 
 Şimdi bağlantıyı kesiyorum. Dünya artık bizi duymuyor.
 
-[Demo controls → **Physiological anomaly**.]
+[**Raise vitals** düğmesine bas (Cut link'in yanında).]
 
 Astronotun nabzı dinlenme hâlinde yükseliyor. AEGIS bunu hemen fark etti: uyarı, nedeni ve yapılacaklar ekranda.
+Bağlantı yok ama astronot ne yapacağını biliyor; adımlar Dünya'dan değil, araçtaki AEGIS'ten geliyor.
 Dünya'ya gidemeyen mesajlar burada, araçta bekliyor. Hiçbiri kaybolmadı.
 
 [**Restore link** düğmesine bas.]
