@@ -96,7 +96,7 @@ export default function Landing() {
 
       <footer>
         <div className="mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-3 px-5 py-4 text-[12px] text-[var(--site-dim)]">
-          <span>Team Against the Silence · NASA Space Apps Challenge 2026 · Sivas, Türkiye · Asasira Martin · Mariam Saied · David Kitasho</span>
+          <span>Team Against the Silence · NASA Space Apps Challenge 2026 · Sivas, Türkiye · Asasira Martin · Mariam Saied · Devid Kitasho</span>
           <span className="flex gap-4">
             <a href={REPO_URL} className="hover:text-white" target="_blank" rel="noreferrer">GitHub</a>
             <a href={ATTRIBUTIONS_URL} className="hover:text-white" target="_blank" rel="noreferrer">Attributions</a>

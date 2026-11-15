@@ -100,7 +100,7 @@ Karşılaştırma için: saniyede bir ölçümle 10 dakikalık ham veri yaklaş�
 | Şart | 3 dokunuşla bildirim ve "şimdi ne yapmalı" ekranı | Mariam (arayüz), Martin (mantık) |
 | Şart | "Yanıt beklenen süre" geri sayımı | Mariam |
 | Artı | Sinyal kalitesi kontrolü ve aktiviteye duyarlı uyarılar | Martin |
-| Artı | Kısa pencere demosu: yalnızca başlık geçer | Martin, demoyu David yürütür |
+| Artı | Kısa pencere demosu: yalnızca başlık geçer | Martin, demoyu Devid yürütür |
 
 **Sahnede kanıtlayacaklarımız:** başlık çok kısa bir bağlantı penceresinde bile Dünya'ya ulaşır, kesinti boyunca hiçbir şey kaybolmaz ve bir PulseBrief'in ham verilere göre kaç bayt gönderdiği.
 
@@ -190,7 +190,7 @@ against-silence26/
 | --- | --- | --- |
 | **Asasira Martin** (lider) | FastAPI backend, sağlık verisi işleme (AEGIS), BLE entegrasyonu, MEDLINK | Veri girişi → AEGIS uyarısı → PulseBrief → BPv7 teslimi, kesinti simülatörüyle birlikte |
 | **Mariam Saied** | Next.js frontend: astronot paneli ve Dünya konsolu | İki ekran da PWA olarak; önce sahte veriyle, sonra canlı API ile |
-| **David Kitasho** | Uçtan uca test, demo senaryoları, hata bildirimi | Test kontrol listesi, demo senaryosu, issue olarak açılmış hatalar, slaytlar için ekran görüntüleri |
+| **Devid Kitasho** | Uçtan uca test, demo senaryoları, hata bildirimi | Test kontrol listesi, demo senaryosu, issue olarak açılmış hatalar, slaytlar için ekran görüntüleri |
 
 **Rol mü istiyorsunuz, ya da rolünüzü değiştirmek mi?** [Rol talep edin](https://github.com/Switch256/against-silence26/issues/new?template=role.yml). Başka her şey için (soru, engel, fikir): [issue açın](https://github.com/Switch256/against-silence26/issues/new/choose).
 

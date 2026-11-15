@@ -117,7 +117,7 @@ Against the Silence · Sivas, Türkiye
 
 - Asasira Martin (lead): backend, health-data processing (AEGIS), MEDLINK
 - Mariam Saied: frontend
-- David Kitasho: testing and demo scenarios
+- Devid Kitasho: testing and demo scenarios
 
 ## Re-making the demo files
 

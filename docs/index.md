@@ -101,7 +101,7 @@ For comparison, 10 minutes of raw readings at one per second is roughly 15–20 
 | Must | 3-tap check-in and "what to do now" screen | Mariam (UI), Martin (logic) |
 | Must | "Reply expected in" countdown | Mariam |
 | Nice | Signal-quality check and activity-aware alerts | Martin |
-| Nice | Short-window demo: only the headline gets through | Martin, David runs it |
+| Nice | Short-window demo: only the headline gets through | Martin, Devid runs it |
 
 **What we will prove on stage:** the headline reaches Earth even in a very short link window, nothing is lost across a blackout, and how many bytes a PulseBrief sends compared with raw readings.
 
@@ -191,7 +191,7 @@ Three people, three clear lanes. Each lane plugs into the others through the sha
 | --- | --- | --- |
 | **Asasira Martin** (lead) | FastAPI backend, health-data processing (AEGIS), BLE integration, MEDLINK | Data in → AEGIS alert → PulseBrief → BPv7 delivery, with the blackout simulator |
 | **Mariam Saied** | Next.js frontend: the astronaut dashboard and the Earth console | Both screens as a PWA, working against mock data first, then the live API |
-| **David Kitasho** | End-to-end testing, demo scenarios, bug reporting | Test checklist, the demo script, bugs filed as issues, screenshots for the slides |
+| **Devid Kitasho** | End-to-end testing, demo scenarios, bug reporting | Test checklist, the demo script, bugs filed as issues, screenshots for the slides |
 
 **Want a role, or want to change yours?** [Request a role](https://github.com/Switch256/against-silence26/issues/new?template=role.yml). Anything else (a question, a blocker, an idea): [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
 
