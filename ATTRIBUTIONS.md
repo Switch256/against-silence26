@@ -50,6 +50,7 @@ All Earth, Moon and Mars imagery is now NASA-sourced; no third-party textures re
 | `frontend/public/models/aegis1.glb` | AEGIS-1 web model: the NASA ISS (B) model with the detached floating parts removed, the 8 solar-array wings split into rotatable nodes, and simple named materials (`tools/blender/prep_aegis1.py`) | NASA 3D Resources, [International Space Station (ISS) (B)](https://science.nasa.gov/3d-resources/international-space-station-iss-b/) |
 | `tools/blender/textures/earth_day_bluemarble_8192.jpg` | 8192×4096 day Earth used only for the Blender renders (sharper full-screen video); the east and west 4096 px halves stitched by the team | NASA Goddard SVS, [Blue Marble](https://svs.gsfc.nasa.gov/2915) (`bluemarble-west-4096.png` + `bluemarble-east-4096.png`) |
 | `frontend/public/media/hero-1080.mp4`, `hero-720.mp4`, `hero-1080.webm`, `hero-poster.jpg` | Landing hero loop (10 s): AEGIS-1 above the Earth's limb with the DTN link beam and a PulseBrief packet (`tools/blender/aegis_scene.py --mode hero`) | ISS (B) model (as above); Blue Marble 8192 (SVS 2915, stitched); Black Marble 2012 night lights; cloud layer and ocean mask derived from SVS 3615 / SVS 2915 |
+| `frontend/public/media/aegis-medlink-demo-30s.mp4` | The 30-second submission video, cut in Blender's sequencer (`tools/blender/demo_video.py`) from the hero and story films above and screenshots of the live console (`docs/media/shots/`) | Same NASA sources as the films and the console |
 | `frontend/public/media/story-media-720.mp4` | "How it works" clip (8 s): the link drops, bundles queue, the link returns, the bundles are delivered in priority order and a reply comes back (`tools/blender/aegis_scene.py --mode story`) | Same as the hero loop |
 
 The starfield, atmosphere, sun glow, link beam, packets and navigation lights are procedural shaders made by the team.
@@ -72,5 +73,6 @@ No certification or endorsement is claimed.
 
 ## AI assistance
 
-AI tools (ChatGPT, Claude) were used for brainstorming, writing and code. The idea, architecture and technical
-decisions are the team's; all results were verified by the team.
+The idea is the team's own. We then used AI tools (ChatGPT, Claude) to refine it, and for research, code,
+writing, UI design and the demo materials. The architecture and decisions are the team's, and we checked every
+result. The product itself has no AI model.

@@ -9,6 +9,7 @@ import { COLORS } from "@/lib/constants";
 import { useLinkVisual } from "@/hooks/useLinkVisual";
 import { useStore, type CameraView } from "@/lib/store";
 import { GroundStationInset } from "./GroundStationInset";
+import { LinkSwitch } from "./LinkSwitch";
 import { LogTicker } from "./LogTicker";
 import { CrewStrip } from "./CrewStrip";
 import { MissionClock } from "./MissionClock";
@@ -164,7 +165,8 @@ export function Viewport() {
           <GroundStationInset />
         </div>
       )}
-      <div className="pointer-events-none absolute inset-x-0 bottom-10 z-40 flex justify-center">
+      <div className="pointer-events-none absolute inset-x-0 bottom-10 z-40 flex flex-col items-center gap-2">
+        <LinkSwitch />
         <SignalPath />
       </div>
       <div className="absolute inset-x-0 bottom-0 z-40">

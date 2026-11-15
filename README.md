@@ -5,6 +5,8 @@
 Offline-first astronaut health monitoring (AEGIS) with delay-tolerant medical communication over BPv7 (MEDLINK).
 
 - 📄 **Background & technical plan:** [`docs/index.md`](docs/index.md) · website: https://switch256.github.io/against-silence26/
+- 🚀 **Submission pack** (project-page text, links, checklist): [`docs/SUBMISSION.md`](docs/SUBMISSION.md) · Turkish talk: [`docs/TALK_TR.md`](docs/TALK_TR.md)
+- 🎬 **Demo:** 30-second video `frontend/public/media/aegis-medlink-demo-30s.mp4` · slides at `/slides` (PDF: `frontend/public/aegis-medlink-slides.pdf`)
 - ✏️ To edit the plan, open `docs/index.md` on GitHub, click the pencil, and commit.
 - 🙋 Want a role? [Request one](https://github.com/Switch256/against-silence26/issues/new?template=role.yml). Questions or blockers: [open an issue](https://github.com/Switch256/against-silence26/issues/new/choose).
 
