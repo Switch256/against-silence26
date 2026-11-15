@@ -24,6 +24,11 @@
 .shot { width: 100%; border-radius: calc(var(--u) * 14); display: block; }
 .shots { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 28); margin-top: calc(var(--u) * 40); }
 .shots p { margin-top: calc(var(--u) * 16); font-size: calc(var(--u) * 26); }
+.challenge { margin-top: calc(var(--u) * 36); display: inline-block; background: rgba(8, 10, 12, 0.6); border-radius: calc(var(--u) * 14); padding: calc(var(--u) * 14) calc(var(--u) * 22); }
+.band { margin-top: calc(var(--u) * 36); font-size: calc(var(--u) * 29); line-height: 1.42; color: var(--color-fg-2); background: var(--color-surface); border-radius: calc(var(--u) * 22); padding: calc(var(--u) * 28) calc(var(--u) * 36); }
+.facts { margin-top: calc(var(--u) * 30); }
+.facts > div { font-size: calc(var(--u) * 26); line-height: 1.4; color: var(--color-fg-2); }
+.split { display: grid; grid-template-columns: 1.55fr 1fr; gap: calc(var(--u) * 44); margin-top: calc(var(--u) * 40); align-items: start; }
 .grow { height: calc(var(--u) * 48); }
 .slide ul { margin-top: calc(var(--u) * 8); display: grid; gap: calc(var(--u) * 10); }
 .slide li { list-style: none; }
