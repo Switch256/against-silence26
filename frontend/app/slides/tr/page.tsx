@@ -25,7 +25,7 @@ export default function SlaytlarTR() {
           <p className="challenge">Görev: <strong>Uzay Görevlerindeki Astronotlar İçin Sağlık İzleme Yazılımı</strong></p>
           <p style={{ marginTop: "calc(var(--u) * 28)" }}>
             <strong>Against the Silence takımı</strong> · Sivas, Türkiye<br />
-            Asasira Martin · Mariam Saied · David Kitasho
+            Asasira Martin · Mariam Saied · Devid Kitasho
           </p>
           <p className="small" style={{ marginTop: "calc(var(--u) * 20)" }}>NASA Uluslararası Space Apps Challenge 2026 · againstsilence.earth</p>
         </div>
