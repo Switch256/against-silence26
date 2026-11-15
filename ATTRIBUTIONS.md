@@ -73,5 +73,6 @@ No certification or endorsement is claimed.
 
 ## AI assistance
 
-AI tools (ChatGPT, Claude) were used for brainstorming, writing and code. The idea, architecture and technical
-decisions are the team's; all results were verified by the team.
+The idea is the team's own. We then used AI tools (ChatGPT, Claude) to refine it, and for research, code,
+writing, UI design and the demo materials. The architecture and decisions are the team's, and we checked every
+result. The product itself has no AI model.

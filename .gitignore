@@ -7,5 +7,3 @@ node_modules/
 .env
 *.sqlite
 
-# Local submission notes (keep private)
-docs/SUBMISSION.md
